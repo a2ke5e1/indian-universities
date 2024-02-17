@@ -41,7 +41,7 @@ class _SearchUniState extends State<SearchUni> {
   }
 
   Future<void> _launchURL(String url) async {
-    if ( url.startsWith("http://") || url.startsWith("https://")) {
+    if (url.startsWith("http://") || url.startsWith("https://")) {
       await _launchInBrowser(Uri.parse(url));
     } else {
       var uri = Uri(
@@ -79,7 +79,7 @@ class _SearchUniState extends State<SearchUni> {
           title: data['University_Name'] != null
               ? Text(
                   data['University_Name'],
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 )
               : const Text(""),
           elevation: 0.0,
@@ -94,83 +94,66 @@ class _SearchUniState extends State<SearchUni> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const SizedBox(height: 20.0),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(
+                    ListTile(
+                      title: Text(
                         "University ID",
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      subtitle: Text(
+                        data['University_Id'],
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(data['University_Id'],
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(
+                    ListTile(
+                      title: Text(
                         "University Name",
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      subtitle: Text(
+                        data['University_Name'],
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(data['University_Name'],
-                          style: Theme.of(context).textTheme.bodyLarge),
+                    ListTile(
+                      title: Text(
+                        "University Type",
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      subtitle: Text(
+                        data['University_Type'],
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    Container(
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: const Text("University Type")),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(data['University_Type'],
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(
+                    ListTile(
+                      title: Text(
                         "State",
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      subtitle: Text(
+                        data['State'],
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(data['State'],
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: const Text(
+                    ListTile(
+                      title: Text(
                         "Address",
+                        style: Theme.of(context).textTheme.labelLarge,
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(data['Address'],
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(
-                        "Website",
+                      subtitle: Text(
+                        data['Address'],
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: InkWell(
-                        onTap: () => _launchURL(data['Website']),
-                        child: Text(
-                          data['Website'],
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
+                    ListTile(
+                      title: Text(
+                        "Website",
+                        style: Theme.of(context).textTheme.labelLarge,
                       ),
+                      subtitle: Text(
+                        data['Website'],
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      onTap: () => _launchURL(data['Website']),
                     ),
                   ],
                 ),
