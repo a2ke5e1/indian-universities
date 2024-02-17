@@ -20,6 +20,7 @@ class _SearchUniState extends State<SearchUni> {
 
   GlobalKey previewContainer = GlobalKey();
   int originalSize = 800;
+
   void handleShareButton() async {
     screenshotController.capture().then((Uint8List? value) async {
       // make a XFile from the bytes
@@ -65,26 +66,38 @@ class _SearchUniState extends State<SearchUni> {
         ? data
         : ModalRoute.of(context)!.settings.arguments as Map;
     return Scaffold(
+        appBar: AppBar(
+          title: data['University_Name'] != null
+              ? Text(
+                  data['University_Name'],
+                  style: Theme.of(context).textTheme.bodySmall,
+                )
+              : const Text(""),
+          elevation: 0.0,
+        ),
         body: Container(
           // margin: EdgeInsets.only(top: 200),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppBar(
-                title: data['University_Name'] != null
-                    ? Text(
-                        data['University_Name'],
-                        style: Theme.of(context).textTheme.bodySmall,
-                      )
-                    : const Text(""),
-                backgroundColor: Colors.transparent,
-                elevation: 0.0,
-              ),
               Screenshot(
                 controller: screenshotController,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
+                    const SizedBox(height: 20.0),
+                    Container(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: Text(
+                        "University ID",
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: Text(data['University_Id'],
+                          style: Theme.of(context).textTheme.bodyLarge),
+                    ),
                     const SizedBox(height: 20.0),
                     Container(
                       padding: const EdgeInsets.only(left: 20.0),

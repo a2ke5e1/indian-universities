@@ -37,6 +37,14 @@ class Details {
         docId: snapshot.id);
   }
 
+  String getUniversityID() {
+    return University_Name!.substring(University_Name!.indexOf("U-"), University_Name!.indexOf(")"));
+  }
+
+  String getUniversityName() {
+    return University_Name!.substring(0, University_Name!.indexOf("(")).trim();
+  }
+
   Map<String, dynamic> toFirestore() {
     return {
       if (University_Type != null) "University_Type": University_Type,
