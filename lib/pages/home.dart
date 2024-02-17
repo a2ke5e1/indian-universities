@@ -1,18 +1,17 @@
 import 'dart:async';
-import 'dart:js_interop';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
-import 'package:flutter/services.dart';
-import 'package:indian_universities/screens/search.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:indian_universities/auth/verify_email.dart';
 import 'package:indian_universities/models/details.dart';
+import 'package:indian_universities/screens/search.dart';
 import 'package:indian_universities/services/auth.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../services/firestore.dart';
-import 'package:indian_universities/auth/verify_email.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -241,13 +240,14 @@ class _HomeState extends State<Home> {
                   var uni = doc.data();
 
                   return ListTile(
-                      title: Text(uni.University_Name.toString()),
+                      title: Text(uni.getUniversityName().toString()),
                       onTap: () {
                         Navigator.pushNamed(
                           context,
                           '/details',
                           arguments: {
-                            'University_Name': uni.University_Name,
+                            'University_Id': uni.getUniversityID(),
+                            'University_Name': uni.getUniversityName(),
                             'University_Type': uni.University_Type,
                             'State': uni.State,
                             'Location': uni.Location,

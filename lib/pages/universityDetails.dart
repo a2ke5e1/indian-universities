@@ -20,6 +20,7 @@ class _SearchUniState extends State<SearchUni> {
 
   GlobalKey previewContainer = GlobalKey();
   int originalSize = 800;
+
   void handleShareButton() async {
     screenshotController.capture().then((Uint8List? value) async {
       // make a XFile from the bytes
@@ -40,14 +41,23 @@ class _SearchUniState extends State<SearchUni> {
   }
 
   Future<void> _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      if (url.startsWith("https://")) {
-        await launch(url);
-      } else if (url.startsWith("http://")) {
-        await launch(url);
-      }
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      await _launchInBrowser(Uri.parse(url));
     } else {
-      await launch("https://$url");
+      var uri = Uri(
+        scheme: 'http',
+        host: url,
+      );
+      await _launchInBrowser(uri);
+    }
+  }
+
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
     }
   }
 
@@ -65,90 +75,85 @@ class _SearchUniState extends State<SearchUni> {
         ? data
         : ModalRoute.of(context)!.settings.arguments as Map;
     return Scaffold(
+        appBar: AppBar(
+          title: data['University_Name'] != null
+              ? Text(
+                  data['University_Name'],
+                  style: Theme.of(context).textTheme.bodyLarge,
+                )
+              : const Text(""),
+          elevation: 0.0,
+        ),
         body: Container(
           // margin: EdgeInsets.only(top: 200),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppBar(
-                title: data['University_Name'] != null
-                    ? Text(
-                        data['University_Name'],
-                        style: Theme.of(context).textTheme.bodySmall,
-                      )
-                    : const Text(""),
-                backgroundColor: Colors.transparent,
-                elevation: 0.0,
-              ),
               Screenshot(
                 controller: screenshotController,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const SizedBox(height: 20.0),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(
+                    ListTile(
+                      title: Text(
+                        "University ID",
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      subtitle: Text(
+                        data['University_Id'],
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
+                    ListTile(
+                      title: Text(
                         "University Name",
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      subtitle: Text(
+                        data['University_Name'],
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(data['University_Name'],
-                          style: Theme.of(context).textTheme.bodyLarge),
+                    ListTile(
+                      title: Text(
+                        "University Type",
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      subtitle: Text(
+                        data['University_Type'],
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    Container(
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: const Text("University Type")),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(data['University_Type'],
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(
+                    ListTile(
+                      title: Text(
                         "State",
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      subtitle: Text(
+                        data['State'],
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(data['State'],
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: const Text(
+                    ListTile(
+                      title: Text(
                         "Address",
+                        style: Theme.of(context).textTheme.labelLarge,
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(data['Address'],
-                          style: Theme.of(context).textTheme.bodyLarge),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Text(
-                        "Website",
+                      subtitle: Text(
+                        data['Address'],
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: InkWell(
-                        onTap: () => _launchURL(data['Website']),
-                        child: Text(
-                          data['Website'],
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
+                    ListTile(
+                      title: Text(
+                        "Website",
+                        style: Theme.of(context).textTheme.labelLarge,
                       ),
+                      subtitle: Text(
+                        data['Website'],
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      onTap: () => _launchURL(data['Website']),
                     ),
                   ],
                 ),
