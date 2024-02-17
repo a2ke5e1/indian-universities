@@ -41,14 +41,23 @@ class _SearchUniState extends State<SearchUni> {
   }
 
   Future<void> _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      if (url.startsWith("https://")) {
-        await launch(url);
-      } else if (url.startsWith("http://")) {
-        await launch(url);
-      }
+    if ( url.startsWith("http://") || url.startsWith("https://")) {
+      await _launchInBrowser(Uri.parse(url));
     } else {
-      await launch("https://$url");
+      var uri = Uri(
+        scheme: 'http',
+        host: url,
+      );
+      await _launchInBrowser(uri);
+    }
+  }
+
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception('Could not launch $url');
     }
   }
 
