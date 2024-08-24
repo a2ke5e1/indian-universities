@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:indian_universities/auth/signup.dart';
 import 'package:indian_universities/models/user.dart';
-import 'package:indian_universities/pages/fingerprint_auth.dart';
 import 'package:indian_universities/pages/home.dart';
 import 'package:indian_universities/pages/reset_password.dart';
 import 'package:indian_universities/pages/wrapper.dart';
@@ -55,7 +54,6 @@ class MyApp extends StatelessWidget {
               '/signin': (context) => const SignInPage(),
               '/auth': (context) => const Authenticate(),
               '/home': (context) => const Home(),
-              "/fingerprint": (context) => const fingerprint(),
               "/reset": (context) => const ResetPasswordScreen(),
             },
           );

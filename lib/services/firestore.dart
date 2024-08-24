@@ -9,6 +9,7 @@ class FireStoreDataBase {
   static const UNIVERSITY_COLLECTION = "universities";
   static const FAVOURITE_COLLECTION = "favourites";
   static const USER_COLLECTION = "users";
+
   // Future<Details?> _unidetails(CollectionReference collectionref, String docId) async {
   //   await collectionRef.doc(docId).get().then((value) {
   //         value.
@@ -26,15 +27,21 @@ class FireStoreDataBase {
           fromFirestore: Details.fromFirestore,
           toFirestore: (Details detail, options) => detail.toFirestore(),
         );
+
+    var userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      return;
+    }
     favouriteref = _db
         .collection(USER_COLLECTION)
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .doc(userId)
         .collection(FAVOURITE_COLLECTION)
         .withConverter(
           fromFirestore: Details.fromFirestore,
           toFirestore: (Details detail, options) => detail.toFirestore(),
         );
   }
+
   Future addFavourite(Details detail) async {
     try {
       await favouriteref.doc(detail.docId).set(detail);

@@ -1,11 +1,1 @@
-{
-  "emulators": {
-    "firestore": {
-      "port": 8080
-    },
-    "ui": {
-      "enabled": true
-    },
-    "singleProjectMode": true
-  }
-}
+{"emulators":{"firestore":{"port":8080},"ui":{"enabled":true},"singleProjectMode":true},"flutter":{"platforms":{"android":{"default":{"projectId":"indianuniversities-d984f","appId":"1:46894809979:android:c44ff184acf773ee1ef3de","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"indianuniversities-d984f","configurations":{"android":"1:46894809979:android:c44ff184acf773ee1ef3de","ios":"1:46894809979:ios:dcdc1ad96befc3641ef3de","macos":"1:46894809979:ios:dcdc1ad96befc3641ef3de","web":"1:46894809979:web:2cab084c017f052f1ef3de","windows":"1:46894809979:web:fb37f58036bfb2db1ef3de"}}}}}}

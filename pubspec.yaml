@@ -47,13 +47,11 @@ dependencies:
   firebase_auth: ^4.7.1
   email_validator: ^2.1.17
 
-  google_maps_flutter: ^2.4.0
-  local_auth: ^2.1.6
   sign_in_with_apple: ^5.0.0
   firebase_ui_firestore: ^1.5.6
   shared_preferences: ^2.2.0
   share_files_and_screenshot_widgets: ^1.0.6
-  screenshot: ^2.1.0
+  screenshot: ^3.0.0
   share_plus: ^7.0.2
   google_sign_in: ^6.1.4
 
