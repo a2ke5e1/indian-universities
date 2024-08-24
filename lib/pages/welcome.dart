@@ -1,3 +1,4 @@
+import 'package:indian_universities/constants/Strings.dart';
 import 'package:indian_universities/constants/Urls.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -57,11 +58,11 @@ class _WelcomePageState extends State<WelcomePage> {
                   child: Column(
                     children: [
                       const Text(
-                        "Eye Care",
+                        Strings.APP_NAME,
                         style: TextStyle(fontSize: 30),
                       ),
                       Text(
-                        "Track your vision with ease",
+                        Strings.APP_SLOGAN_NAME,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
@@ -69,7 +70,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   ),
                 ),
                 Icon(
-                  Icons.visibility,
+                  Icons.school_rounded,
                   size: 200,
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -107,7 +108,7 @@ class _WelcomePageState extends State<WelcomePage> {
                         ),
                       ])),
                   const SizedBox(height: 10),
-                  ElevatedButton(
+                  FilledButton.tonal(
                     onPressed: () async {
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();

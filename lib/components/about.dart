@@ -41,7 +41,7 @@ class About {
                   children: <Widget>[
                     Container(
                       margin: const EdgeInsets.only(bottom: 24.0),
-                      child: Icon(Icons.visibility,
+                      child: Icon(Icons.school_rounded,
                           size: 50, color: themeData.colorScheme.primary),
                     ),
                     Expanded(

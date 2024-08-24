@@ -3,7 +3,7 @@
 class Urls {
   Urls._();
 
-  static const String TOS = "https://a3group.co.in/eye-care/terms-of-service";
-  static const String PRIVACY_POLICY = "https://a3group.co.in/eye-care/privacy-policy";
-  static const String TELEGRAM = "https://t.me/phycalc/651";
+  static const String TOS = "https://a3group.co.in/indian-universities/terms-of-service";
+  static const String PRIVACY_POLICY = "https://a3group.co.in/indian-universities/privacy-policy";
+  static const String TELEGRAM = "https://t.me/phycalc/";
 }

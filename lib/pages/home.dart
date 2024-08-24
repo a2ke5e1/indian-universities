@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:indian_universities/components/about.dart';
 import 'package:indian_universities/models/details.dart';
 import 'package:indian_universities/screens/search.dart';
 import 'package:indian_universities/services/auth_service.dart';
@@ -35,6 +36,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     _initShare();
+    print(user);
     super.initState();
   }
 
@@ -44,33 +46,43 @@ class _HomeState extends State<Home> {
 
   static const _items = <NavigationDestination>[
     NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-    NavigationDestination(icon: Icon(Icons.search), label: "Search"),
-    NavigationDestination(icon: Icon(Icons.person), label: "Account")
+    NavigationDestination(icon: Icon(Icons.favorite), label: "Favorites"),
+    // NavigationDestination(icon: Icon(Icons.person), label: "Account")
   ];
 
-  int _navigationIndex = 1;
-  String title = "Search";
+  int _navigationIndex = 0;
+  String title = _items[0].label;
 
   void _onNavigationTap(int index) {
     setState(() {
       _navigationIndex = index;
-      switch (index) {
-        case 0:
-          title = "Favorites";
-          break;
-        case 1:
-          title = "Search";
-          break;
-        case 2:
-          title = "Account";
-          break;
-      }
+      title = _items[index].label;
     });
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void handlePopupMenu(int value) {
+    switch (value) {
+      case 0:
+        {
+          About(context).showCustomDialogBox();
+          break;
+        }
+      case 1:
+        {
+          if (user?.isAnonymous ?? true) {
+            AuthService.logout();
+            Navigator.pushNamed(context, '/signin');
+          } else {
+            AuthService.logout();
+          }
+          break;
+        }
+    }
   }
 
   @override
@@ -89,22 +101,20 @@ class _HomeState extends State<Home> {
                   },
                   icon: const Icon(Icons.search))
               : Container(),
-          ElevatedButton.icon(
-            onPressed: () async {
-              if (user == null) {
-                Navigator.pushNamed(context, '/auth');
-              } else {
-                AuthService.logout();
-              }
-            },
-            icon: const Icon(Icons.person),
-            label: Text(user?.isAnonymous == true ? "Login" : "Logout"),
+          PopupMenuButton<int>(
+            onSelected: handlePopupMenu,
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 0, child: Text('About')),
+              PopupMenuItem(
+                  value: 1,
+                  child: Text(user?.isAnonymous ?? true ? "Login" : "Logout")),
+            ],
           )
         ],
       ),
       body: <Widget>[
-        FavoritesList(universityRepo: universityRepo),
         UniversityList(universityRepo: universityRepo),
+        FavoritesList(universityRepo: universityRepo),
         AccountInfo(),
       ][_navigationIndex],
       bottomNavigationBar: NavigationBar(
@@ -144,7 +154,8 @@ class FavoritesList extends StatelessWidget {
                 context,
                 '/details',
                 arguments: {
-                  'University_Name': uni.University_Name,
+                  'University_Id': uni.getUniversityID(),
+                  'University_Name': uni.getUniversityName(),
                   'University_Type': uni.University_Type,
                   'State': uni.State,
                   'Location': uni.Location,

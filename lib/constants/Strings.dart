@@ -3,8 +3,9 @@
 class Strings {
   Strings._();
 
-  static const String APP_NAME = "Eye Care";
-  static const String APP_VERSION = "v0.0.3";
+  static const String APP_NAME = "Indian Universities";
+  static const String APP_SLOGAN_NAME = "Know your Universities";
+  static const String APP_VERSION = "v0.0.1";
   static const String APP_ORG = "A3 Group";
 
   static const String BIO_MSG = "Provide a brief bio to help us personalize your experience.";
@@ -24,7 +25,9 @@ class Strings {
   static const String AUTH_EMAIL_ALREADY_IN_USE = "The account already exists for that email.";
   static const String AUTH_NETWORK_ERROR = "No Internet! Check your connection and try again.";
   static const String AUTH_TOO_MANY_REQUESTS = "Too many requests! Try again later.";
-  static const String ABOUT_APP_DESCRIPTION = "It provides a way to store your eye reports in one place and share them.";
-  static const String ABOUT_SHARE_DESCRIPTION = "Check out Eye Care (https://play.google.com/store/apps/details?id=com.a3.indian_universities). You can store your eye reports in one place and share them.";
+
+
+  static const String ABOUT_APP_DESCRIPTION = "It provides information about Indian Universities.";
+  static const String ABOUT_SHARE_DESCRIPTION = "Check out Indian Universities (https://play.google.com/store/apps/details?id=com.a3.indian_universities).";
 
 }
