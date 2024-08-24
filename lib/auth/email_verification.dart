@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:indian_universities/constants/Strings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../../constants/Strings.dart';
+import '../../components/footer.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   const EmailVerificationScreen({Key? key}) : super(key: key);
@@ -13,10 +13,15 @@ class EmailVerificationScreen extends StatefulWidget {
 }
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
+  /// Timer and isEmailVerified are used to check if the email is verified or not
   bool isEmailVerified = false;
   Timer? timer;
+
+  /// resendTimer and canResend are used to check if the user can resend the email or not
   bool canResend = true;
   Timer? resendTimer;
+
+  /// countDownTimer and resendTime are used to show the time left to resend the email
   int resendTime = 60;
   Timer? countDownTimer;
 
@@ -125,9 +130,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         )),
                     const SizedBox(height: 80),
-                    const CircularProgressIndicator(),
+                    CircularProgressIndicator(),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Verifying email....',
                     ),
                     const SizedBox(height: 57),
@@ -146,12 +151,12 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         child: const Text('Resend'),
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 100,
                     ),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text(""),
+                      child: Footer(footerMessage: "All your data are secured on encrypted service of Google Firebase."),
                     )
                   ],
                 ),

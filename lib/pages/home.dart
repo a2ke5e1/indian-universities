@@ -5,7 +5,7 @@ import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:indian_universities/models/details.dart';
 import 'package:indian_universities/screens/search.dart';
-import 'package:indian_universities/services/auth.dart';
+import 'package:indian_universities/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/firestore.dart';
@@ -94,11 +94,11 @@ class _HomeState extends State<Home> {
               if (user == null) {
                 Navigator.pushNamed(context, '/auth');
               } else {
-                await _auth.signOut();
+                AuthService.logout();
               }
             },
             icon: const Icon(Icons.person),
-            label: Text(user == null ? "Login" : "Logout"),
+            label: Text(user?.isAnonymous == true ? "Login" : "Logout"),
           )
         ],
       ),

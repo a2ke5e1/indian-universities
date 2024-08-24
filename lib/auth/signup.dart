@@ -1,9 +1,11 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:indian_universities/components/about.dart';
+import 'package:indian_universities/constants/Strings.dart';
+import 'package:indian_universities/components/footer.dart';
+import 'package:indian_universities/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../../constants/Strings.dart';
-import '../pages/home.dart';
+import 'package:flutter/services.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -53,10 +55,10 @@ class _SignUpPageState extends State<SignUpPage> {
           email: emailController.text.toString(),
           password: confirmPasswordController.text.toString(),
         );
-
         final user = credential.user;
         user?.updateDisplayName(nameController.text);
         Navigator.of(context, rootNavigator: true).pop();
+        TextInput.finishAutofillContext();
       } on FirebaseAuthException catch (e) {
         debugPrint(e.message);
         setState(() {
@@ -83,6 +85,76 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
+  void handleGoogleSignIn() async {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (_) {
+          return const Dialog(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // The loading indicator
+                  CircularProgressIndicator(),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  // Some text
+                  Text('Loading...')
+                ],
+              ),
+            ),
+          );
+        });
+
+    try {
+      await AuthService.signupWithGoogle(context);
+      Navigator.of(context, rootNavigator: true).pop(); // Close the dialog
+
+      // Goes back to home page
+      Navigator.pop(context);
+
+    } on FirebaseAuthException catch (e) {
+      debugPrint(e.message);
+      setState(() {
+        someError = true;
+        if (e.code == 'weak-password' ||
+            e.message.toString().contains("weak-password")) {
+          errorMessage = Strings.AUTH_WEAK_PASSWORD;
+        } else if (e.code == 'email-already-in-use' ||
+            e.message.toString().contains("email-already-in-use")) {
+          errorMessage = Strings.AUTH_EMAIL_ALREADY_IN_USE;
+        } else if (e.message.toString().contains("auth/too-many-requests")) {
+          errorMessage = Strings.AUTH_TOO_MANY_REQUESTS;
+        } else if (e.message.toString().contains("network error")) {
+          errorMessage = Strings.AUTH_NETWORK_ERROR;
+        } else {
+          errorMessage = e.message.toString();
+        }
+      });
+      Navigator.of(context, rootNavigator: true).pop();
+    } catch (e) {
+      debugPrint(e.toString());
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+
+
+  }
+
+  void handlePopupMenu(int value) {
+    switch (value) {
+      case 0:
+        {
+          About(context).showCustomDialogBox();
+          break;
+        }
+
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
@@ -93,7 +165,7 @@ class _SignUpPageState extends State<SignUpPage> {
     *  For mobile devices it is not possible to reach this state. */
     if (user != null) {
       Navigator.pop(context);
-      return const Text("Invalid State");
+      return Text("Invalid State");
     }
 
     return Scaffold(
@@ -101,6 +173,14 @@ class _SignUpPageState extends State<SignUpPage> {
         title: const Text(""),
         scrolledUnderElevation: 0,
         centerTitle: true,
+        actions: [
+          PopupMenuButton<int>(
+            onSelected: handlePopupMenu,
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 0, child: Text('About')),
+            ],
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -115,20 +195,20 @@ class _SignUpPageState extends State<SignUpPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             "Sign Up",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 40),
                           ),
-                          const SizedBox(
+                          SizedBox(
                             height: 10,
                           ),
                           Text(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            "In order to use our app, you need to sign up first. You can sign up with your email or with your Google account.",
                             style: TextStyle(
                               color: Theme.of(context)
                                   .colorScheme
@@ -138,7 +218,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 50,
                     ),
                     someError
@@ -154,13 +234,13 @@ class _SignUpPageState extends State<SignUpPage> {
                                             .colorScheme
                                             .error)),
                           )
-                        : const SizedBox(
+                        : SizedBox(
                             height: 0,
                           ),
                     Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: nameController,
                             autofillHints: const [AutofillHints.name],
@@ -182,7 +262,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: emailController,
                             autofillHints: const [AutofillHints.email],
@@ -207,7 +287,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: passwordController,
                             keyboardType: TextInputType.text,
@@ -237,7 +317,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: TextFormField(
                             keyboardType: TextInputType.text,
                             autofillHints: const [AutofillHints.password],
@@ -273,25 +353,36 @@ class _SignUpPageState extends State<SignUpPage> {
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child:
-                                    const Text("Already Registered? Login.")),
+                                child: Text("Already Registered? Login.")),
                           ),
                           SizedBox(
                             height: 45,
                             child: FilledButton.tonal(
-                                onPressed: handleSignup,
-                                child: const Text("Submit")),
+                                onPressed: handleSignup, child: Text("Submit")),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 100,
+                    Center(
+                      child: SizedBox(
+                        height: 45,
+                        child: ElevatedButton.icon(
+                            onPressed: handleGoogleSignIn,
+                            icon: Image.asset(
+                              "assets/images/google.png",
+                              height: 24,
+                            ),
+                            label: const Text("Sign Up with Google")),
+                      ),
                     ),
-                    const Padding(
+                    SizedBox(
+                      height: 50,
+                    ),
+                    Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Text(
-                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus varius."),
+                      child: Footer(
+                          footerMessage:
+                          "Eye Care is developed by A3 Group."),
                     )
                   ],
                 ),

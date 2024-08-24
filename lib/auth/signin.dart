@@ -1,9 +1,12 @@
-import 'package:indian_universities/services/auth.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:indian_universities/components/about.dart';
+import 'package:indian_universities/constants/Strings.dart';
+import 'package:indian_universities/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import '../constants/Strings.dart';
+import '../../components/footer.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -16,10 +19,11 @@ class _SignInPageState extends State<SignInPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final _signInFormKey = GlobalKey<FormState>();
-  bool someError = false;
-  String errorMessage = "";
-  bool wrongEmailPassword = false;
 
+  bool error = false;
+  String? errorMessage;
+
+  /// This function is used to authenticate the user
   void handleLogin() async {
     if (_signInFormKey.currentState!.validate()) {
       showDialog(
@@ -50,25 +54,35 @@ class _SignInPageState extends State<SignInPage> {
           email: emailController.text.toString(),
           password: passwordController.text.toString(),
         );
+        TextInput.finishAutofillContext();
+        Navigator.of(context, rootNavigator: true).pop();
       } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          print('No user found for that email.');
-        } else if (e.code == 'wrong-password') {
-          print('Wrong password provided for that user.');
-        }
         setState(() {
-          wrongEmailPassword = true;
+          error = true;
+          if (e.message.toString().contains("auth/wrong-password") ||
+              e.message.toString().contains("auth/user-not-found") ||
+              e.message.toString().contains("auth/invalid-email") ||
+              e.code == 'user-not-found' ||
+              e.code == 'wrong-password' ||
+              e.code == 'invalid-email') {
+            errorMessage = Strings.WRONG_EMAIL_PASSWORD;
+          } else if (e.message.toString().contains("auth/too-many-requests")) {
+            errorMessage = Strings.AUTH_TOO_MANY_REQUESTS;
+          } else if (e.message.toString().contains("network error")) {
+            errorMessage = Strings.AUTH_NETWORK_ERROR;
+          } else {
+            errorMessage = e.message.toString();
+          }
         });
-      } catch (e) {
-        print(e);
-      }
 
-      // Remove Dialogbox after user logged in.
-      Navigator.of(context).pop();
+        Navigator.of(context, rootNavigator: true).pop();
+      } catch (e) {
+        debugPrint(e.toString());
+        Navigator.of(context, rootNavigator: true).pop();
+      }
     }
   }
 
-  final AuthService _auth = AuthService();
   void handleGoogleSignIn() async {
     showDialog(
         barrierDismissible: false,
@@ -94,18 +108,18 @@ class _SignInPageState extends State<SignInPage> {
         });
 
     try {
-      await AuthGoogle.signupWithGoogle(context);
-      Navigator.of(context, rootNavigator: true).pop(); // Close the dialog
+      await AuthService.signupWithGoogle(context)
+          .then((value) => Navigator.of(context, rootNavigator: true).pop());
     } on FirebaseAuthException catch (e) {
-      debugPrint(e.message);
       setState(() {
-        someError = true;
-        if (e.code == 'weak-password' ||
-            e.message.toString().contains("weak-password")) {
-          errorMessage = Strings.AUTH_WEAK_PASSWORD;
-        } else if (e.code == 'email-already-in-use' ||
-            e.message.toString().contains("email-already-in-use")) {
-          errorMessage = Strings.AUTH_EMAIL_ALREADY_IN_USE;
+        error = true;
+        if (e.message.toString().contains("auth/wrong-password") ||
+            e.message.toString().contains("auth/user-not-found") ||
+            e.message.toString().contains("auth/invalid-email") ||
+            e.code == 'user-not-found' ||
+            e.code == 'wrong-password' ||
+            e.code == 'invalid-email') {
+          errorMessage = Strings.WRONG_EMAIL_PASSWORD;
         } else if (e.message.toString().contains("auth/too-many-requests")) {
           errorMessage = Strings.AUTH_TOO_MANY_REQUESTS;
         } else if (e.message.toString().contains("network error")) {
@@ -114,10 +128,27 @@ class _SignInPageState extends State<SignInPage> {
           errorMessage = e.message.toString();
         }
       });
+
       Navigator.of(context, rootNavigator: true).pop();
     } catch (e) {
       debugPrint(e.toString());
       Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void handlePopupMenu(int value) {
+    switch (value) {
+      case 0:
+        {
+          About(context).showCustomDialogBox();
+          break;
+        }
+
     }
   }
 
@@ -129,12 +160,24 @@ class _SignInPageState extends State<SignInPage> {
     *
     *  This behaviour is designed for web browsers.
     *  For mobile devices it is not possible to reach this state. */
+    if (user != null) {
+      Navigator.pop(context);
+      return Text("Invalid State");
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(""),
         scrolledUnderElevation: 0,
         centerTitle: true,
+        actions: [
+          PopupMenuButton<int>(
+            onSelected: handlePopupMenu,
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 0, child: Text('About')),
+            ],
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -149,7 +192,7 @@ class _SignInPageState extends State<SignInPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -162,7 +205,7 @@ class _SignInPageState extends State<SignInPage> {
                             height: 10,
                           ),
                           Text(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            "Welcome back to Eye Care!\nPlease sign in to continue.",
                             style: TextStyle(
                               color: Theme.of(context)
                                   .colorScheme
@@ -175,10 +218,10 @@ class _SignInPageState extends State<SignInPage> {
                     const SizedBox(
                       height: 50,
                     ),
-                    wrongEmailPassword
+                    error
                         ? Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(Strings.WRONG_EMAIL_PASSWORD,
+                            child: Text(errorMessage ?? "",
                                 textAlign: TextAlign.start,
                                 style: Theme.of(context)
                                     .textTheme
@@ -188,13 +231,13 @@ class _SignInPageState extends State<SignInPage> {
                                             .colorScheme
                                             .error)),
                           )
-                        : const SizedBox(
+                        : SizedBox(
                             height: 0,
                           ),
                     Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: emailController,
                             autofillHints: const [AutofillHints.email],
@@ -208,13 +251,18 @@ class _SignInPageState extends State<SignInPage> {
                               }
                               return null;
                             },
+                            onChanged: (value) {
+                              setState(() {
+                                error = false;
+                              });
+                            },
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 labelText: 'Email'),
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: passwordController,
                             autofillHints: const [AutofillHints.password],
@@ -226,6 +274,11 @@ class _SignInPageState extends State<SignInPage> {
                               }
                               return null;
                             },
+                            onChanged: (value) {
+                              setState(() {
+                                error = false;
+                              });
+                            },
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
                                 labelText: 'Password'),
@@ -233,8 +286,13 @@ class _SignInPageState extends State<SignInPage> {
                         ),
                       ],
                     ),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "/resetpassword");
+                        },
+                        child: Text("Forgot Password?")),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 16, 8, 16),
+                      padding: const EdgeInsets.fromLTRB(0, 16, 8, 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -244,82 +302,36 @@ class _SignInPageState extends State<SignInPage> {
                                 onPressed: () {
                                   Navigator.pushNamed(context, "/signup");
                                 },
-                                child: const Text("Not Registered? Register.")),
+                                child: Text("Not Registered? Register.")),
                           ),
                           SizedBox(
                             height: 45,
                             child: FilledButton.tonal(
-                                onPressed: handleLogin,
-                                child: const Text("Login")),
+                                onPressed: handleLogin, child: Text("Login")),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FilledButton.tonal(
-                              child: const Text("Sign in as Guest"),
-                              onPressed: () async {
-                                dynamic result = await _auth.signInAnon();
-                                if (result == null) {
-                                  print('error signing in');
-                                } else {
-                                  print('signed in');
-                                  print(result.uid);
-                                }
-                              },
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FilledButton.tonal(
-                                onPressed: handleGoogleSignIn,
-                                child: Text("Signin with Google")),
-                          )
-                        ]),
-                    const SizedBox(height: 5),
                     Center(
-                      child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: FilledButton.tonal(
-                            child: const Text("Forgotten Password?"),
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/reset');
-                            },
-                          )),
+                      child: SizedBox(
+                        height: 45,
+                        child: ElevatedButton.icon(
+                            onPressed: handleGoogleSignIn,
+                            icon: Image.asset(
+                              "assets/images/google.png",
+                              height: 24,
+                            ),
+                            label: const Text("Sign In with Google")),
+                      ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 100,
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus varius.",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w200,
-                        ),
-                      ),
-                    ),
-                    const Padding(
                       padding: EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Terms of Service",
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          Padding(padding: EdgeInsets.all(4), child: Text("·")),
-                          Text(
-                            "Privacy Policy",
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          )
-                        ],
-                      ),
+                      child: Footer(
+                          footerMessage:
+                              "Eye Care is developed by A3 Group. "),
                     )
                   ],
                 ),
