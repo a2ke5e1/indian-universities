@@ -181,6 +181,9 @@ class FavoritesList extends StatelessWidget {
         loadingBuilder: (context) => const Center(
               child: CircularProgressIndicator(),
             ),
+        emptyBuilder: (context) => const Center(
+              child: Text("No favorites added"),
+            ),
         itemBuilder: (context, doc) {
           var uni = doc.data();
           return ListTile(
