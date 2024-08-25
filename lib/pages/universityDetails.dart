@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
@@ -75,6 +76,15 @@ class _SearchUniState extends State<SearchUni> {
     _launchInBrowser(Uri.parse(url));
   }
 
+  void copyToClipboard(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Copied to clipboard'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     data = data.isNotEmpty
@@ -90,83 +100,94 @@ class _SearchUniState extends State<SearchUni> {
               : const Text(""),
           elevation: 0.0,
         ),
-        body: Container(
-          // margin: EdgeInsets.only(top: 200),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Screenshot(
-                controller: screenshotController,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    ListTile(
-                      title: Text(
-                        "University ID",
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      subtitle: Text(
-                        data['University_Id'],
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Screenshot(
+              controller: screenshotController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  ListTile(
+                    title: Text(
+                      "University ID",
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary),
                     ),
-                    ListTile(
-                      title: Text(
-                        "University Name",
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      subtitle: Text(
-                        data['University_Name'],
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
+                    subtitle: Text(
+                      data['University_Id'],
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                    ListTile(
-                      title: Text(
-                        "University Type",
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      subtitle: Text(
-                        data['University_Type'],
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
+                    onLongPress: () => copyToClipboard(data['University_Id']),
+                  ),
+                  ListTile(
+                    title: Text(
+                      "University Name",
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary),
                     ),
-                    ListTile(
-                      title: Text(
-                        "State",
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      subtitle: Text(
-                        data['State'],
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
+                    subtitle: Text(
+                      data['University_Name'],
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                    ListTile(
-                      title: Text(
-                        "Address",
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      subtitle: Text(
-                        data['Address'],
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      onTap: openAddressInMaps,
+                    onLongPress: () =>
+                        copyToClipboard(data['University_Name']),
+                  ),
+                  ListTile(
+                    title: Text(
+                      "University Type",
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary),
                     ),
-                    ListTile(
-                      title: Text(
-                        "Website",
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      subtitle: Text(
-                        data['Website'],
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      onTap: () => _launchURL(data['Website']),
+                    subtitle: Text(
+                      data['University_Type'],
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                  ],
-                ),
+                    onLongPress: () =>
+                        copyToClipboard(data['University_Type']),
+                  ),
+                  ListTile(
+                    title: Text(
+                      "State",
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                    subtitle: Text(
+                      data['State'],
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    onLongPress: () => copyToClipboard(data['State']),
+                  ),
+                  ListTile(
+                    title: Text(
+                      "Address",
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                    subtitle: Text(
+                      data['Address'],
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    onTap: openAddressInMaps,
+                    onLongPress: () => copyToClipboard(data['Address']),
+                  ),
+                  ListTile(
+                    title: Text(
+                      "Website",
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                    subtitle: Text(
+                      data['Website'],
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    onTap: () => _launchURL(data['Website']),
+                    onLongPress: () => copyToClipboard(data['Website']),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
         floatingActionButton: !kIsWeb
             ? FloatingActionButton(
