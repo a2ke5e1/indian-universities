@@ -167,7 +167,12 @@ class FavoritesList extends StatelessWidget {
           direction: Axis.vertical,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            const Text("Please login to view favorites"),
+             Icon(
+              Icons.bookmark_border,
+              size: 100,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            const Text("Login to view your bookmarks"),
             const SizedBox(
               height: 10,
             ),
@@ -187,8 +192,19 @@ class FavoritesList extends StatelessWidget {
         loadingBuilder: (context) => const Center(
               child: CircularProgressIndicator(),
             ),
-        emptyBuilder: (context) => const Center(
-              child: Text("No favorites added"),
+        emptyBuilder: (context) => Center(
+              child: Wrap(
+                direction: Axis.vertical,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Icon(
+                    Icons.bookmark_border,
+                    size: 100,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  const Text("No bookmarks!"),
+                ],
+              ),
             ),
         itemBuilder: (context, doc) {
           var uni = doc.data();
@@ -421,30 +437,38 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
                             title: Text(
                                 university.University_Name?.toUpperCase() ??
                                     ''),
-                            trailing: isFavourite(university.docId)
-                                ? IconButton(
-                                    onPressed: () {
-                                      widget.universityRepo
-                                          .removeFavourite(university);
-                                      setState(() {
-                                        _favouriteUniversities.removeWhere(
-                                            (element) =>
-                                                element.University_Name ==
-                                                university.University_Name);
-                                      });
-                                      _showSnackBar(context, "Removed from Bookmarks");
-                                    },
-                                    icon: const Icon(Icons.bookmark))
-                                : IconButton(
-                                    onPressed: () {
-                                      widget.universityRepo
-                                          .addFavourite(university);
-                                      setState(() {
-                                        _favouriteUniversities.add(university);
-                                      });
-                                      _showSnackBar(context, "Added to Bookmarks");
-                                    },
-                                    icon: const Icon(Icons.bookmark_border)),
+                            trailing: FirebaseAuth
+                                        .instance.currentUser?.isAnonymous ??
+                                    true
+                                ? const SizedBox()
+                                : isFavourite(university.docId)
+                                    ? IconButton(
+                                        onPressed: () {
+                                          widget.universityRepo
+                                              .removeFavourite(university);
+                                          setState(() {
+                                            _favouriteUniversities.removeWhere(
+                                                (element) =>
+                                                    element.University_Name ==
+                                                    university.University_Name);
+                                          });
+                                          _showSnackBar(context,
+                                              "Removed from Bookmarks");
+                                        },
+                                        icon: const Icon(Icons.bookmark))
+                                    : IconButton(
+                                        onPressed: () {
+                                          widget.universityRepo
+                                              .addFavourite(university);
+                                          setState(() {
+                                            _favouriteUniversities
+                                                .add(university);
+                                          });
+                                          _showSnackBar(
+                                              context, "Added to Bookmarks");
+                                        },
+                                        icon:
+                                            const Icon(Icons.bookmark_border)),
                             onTap: () {
                               Navigator.pushNamed(
                                 context,
