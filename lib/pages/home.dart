@@ -154,8 +154,22 @@ class FavoritesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
-      return const Center(
-        child: Text("Please login to view favorites"),
+      return Center(
+        child: Wrap(
+          direction: Axis.vertical,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            const Text("Please login to view favorites"),
+            const SizedBox(
+              height: 10,
+            ),
+            FilledButton.tonal(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/signin');
+                },
+                child: const Text("Login"))
+          ],
+        ),
       );
     }
 

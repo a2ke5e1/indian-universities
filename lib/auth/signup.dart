@@ -1,11 +1,11 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:indian_universities/components/about.dart';
-import 'package:indian_universities/constants/Strings.dart';
-import 'package:indian_universities/components/footer.dart';
-import 'package:indian_universities/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:indian_universities/components/about.dart';
+import 'package:indian_universities/components/footer.dart';
+import 'package:indian_universities/constants/Strings.dart';
+import 'package:indian_universities/services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -57,7 +57,8 @@ class _SignUpPageState extends State<SignUpPage> {
         );
         final user = credential.user;
         user?.updateDisplayName(nameController.text);
-        Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil("/home", (route) => false);
+        Navigator.of(context, rootNavigator: true)
+            .pushNamedAndRemoveUntil("/home", (route) => false);
         TextInput.finishAutofillContext();
       } on FirebaseAuthException catch (e) {
         debugPrint(e.message);
@@ -115,7 +116,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
       // Goes back to home page
       Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
-
     } on FirebaseAuthException catch (e) {
       debugPrint(e.message);
       setState(() {
@@ -139,8 +139,6 @@ class _SignUpPageState extends State<SignUpPage> {
       debugPrint(e.toString());
       Navigator.of(context, rootNavigator: true).pop();
     }
-
-
   }
 
   void handlePopupMenu(int value) {
@@ -150,10 +148,8 @@ class _SignUpPageState extends State<SignUpPage> {
           About(context).showCustomDialogBox();
           break;
         }
-
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +204,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             height: 10,
                           ),
                           Text(
-                            "In order to use our app, you need to sign up first. You can sign up with your email or with your Google account.",
+                            "Keep track of your favorites universities by creating an account. You can sign up with your email or with your Google account.",
                             style: TextStyle(
                               color: Theme.of(context)
                                   .colorScheme
@@ -382,7 +378,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       padding: EdgeInsets.all(8.0),
                       child: Footer(
                           footerMessage:
-                          "Eye Care is developed by A3 Group."),
+                              "${Strings.APP_NAME} is developed by A3 Group."),
                     )
                   ],
                 ),

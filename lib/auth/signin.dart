@@ -170,6 +170,12 @@ class _SignInPageState extends State<SignInPage> {
         title: const Text(""),
         scrolledUnderElevation: 0,
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pushNamedAndRemoveUntil("/home", (route) => false);
+          },
+        ),
         actions: [
           PopupMenuButton<int>(
             onSelected: handlePopupMenu,
@@ -331,7 +337,7 @@ class _SignInPageState extends State<SignInPage> {
                       padding: EdgeInsets.all(8.0),
                       child: Footer(
                           footerMessage:
-                              "Eye Care is developed by A3 Group. "),
+                              "${Strings.APP_NAME} is developed by A3 Group. "),
                     )
                   ],
                 ),
