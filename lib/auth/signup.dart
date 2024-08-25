@@ -161,7 +161,7 @@ class _SignUpPageState extends State<SignUpPage> {
     *  For mobile devices it is not possible to reach this state. */
     if (user != null) {
       Navigator.pop(context);
-      return Text("Invalid State");
+      return const Text("Invalid State");
     }
 
     return Scaffold(
@@ -191,16 +191,16 @@ class _SignUpPageState extends State<SignUpPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             "Sign Up",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 40),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           Text(
@@ -214,7 +214,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         ],
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 50,
                     ),
                     someError
@@ -230,13 +230,13 @@ class _SignUpPageState extends State<SignUpPage> {
                                             .colorScheme
                                             .error)),
                           )
-                        : SizedBox(
+                        : const SizedBox(
                             height: 0,
                           ),
                     Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: nameController,
                             autofillHints: const [AutofillHints.name],
@@ -258,7 +258,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: emailController,
                             autofillHints: const [AutofillHints.email],
@@ -283,7 +283,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: passwordController,
                             keyboardType: TextInputType.text,
@@ -313,7 +313,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             keyboardType: TextInputType.text,
                             autofillHints: const [AutofillHints.password],
@@ -349,12 +349,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: Text("Already Registered? Login.")),
+                                child: const Text("Already Registered? Login.")),
                           ),
                           SizedBox(
                             height: 45,
                             child: FilledButton.tonal(
-                                onPressed: handleSignup, child: Text("Submit")),
+                                onPressed: handleSignup, child: const Text("Submit")),
                           ),
                         ],
                       ),
@@ -371,10 +371,10 @@ class _SignUpPageState extends State<SignUpPage> {
                             label: const Text("Sign Up with Google")),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 50,
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Footer(
                           footerMessage:

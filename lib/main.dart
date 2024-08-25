@@ -8,7 +8,6 @@ import 'package:indian_universities/pages/home.dart';
 import 'package:indian_universities/pages/reset_password.dart';
 import 'package:indian_universities/pages/universityDetails.dart';
 import 'package:indian_universities/pages/welcome.dart';
-import 'package:indian_universities/services/auth_service.dart';
 
 import 'firebase_options.dart';
 

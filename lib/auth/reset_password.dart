@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../../components/footer.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
-  const ResetPasswordScreen({Key? key}) : super(key: key);
+  const ResetPasswordScreen({super.key});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -93,7 +93,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           resendTime = 60;
         });
 
-        SnackBar snackBar = SnackBar(
+        SnackBar snackBar = const SnackBar(
           content: Text('Email sent successfully'),
           duration: Duration(seconds: 3),
         );
@@ -199,7 +199,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                       color:
                                           Theme.of(context).colorScheme.error)),
                         )
-                      : SizedBox(
+                      : const SizedBox(
                           height: 0,
                         ),
                   Form(
@@ -242,7 +242,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   const SizedBox(
                     height: 100,
                   ),
-                   Padding(
+                   const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Footer(footerMessage: "Eye Care is developed by A3 Group."),
                   )

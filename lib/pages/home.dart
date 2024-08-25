@@ -131,19 +131,19 @@ class _HomeState extends State<Home> {
               ],
             ),
             body: <Widget>[
-              UniversityList(
+              UniversityListFilter(
                 universityRepo: universityRepo,
               ),
               FavoritesList(universityRepo: universityRepo),
-              AccountInfo(),
+              const AccountInfo(),
             ][_navigationIndex],
             bottomNavigationBar: NavigationBar(
+              surfaceTintColor: Theme.of(context).colorScheme.primary,
               destinations: _items,
               onDestinationSelected: _onNavigationTap,
               selectedIndex: _navigationIndex,
             ),
           );
-          ;
         });
   }
 }
@@ -189,7 +189,7 @@ class FavoritesList extends StatelessWidget {
           return ListTile(
             title: Text(uni.University_Name.toString()),
             onTap: () {
-              print(uni );
+              print(uni);
               Navigator.pushNamed(
                 context,
                 '/details',
@@ -289,29 +289,156 @@ class _UniversityListState extends State<UniversityList> {
                     );
                   },
                   onLongPress: () => {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("Add to Favorites"),
-                            content: Text(
-                                "Do you want to add ${university.University_Name} to favorites?"),
-                            actions: [
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text("No")),
-                              TextButton(
-                                  onPressed: () {
-                                    widget.universityRepo.addFavourite(university);
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text("Yes"))
-                            ],
-                          );
-                        })
-                  });
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Add to Favorites"),
+                                content: Text(
+                                    "Do you want to add ${university.University_Name} to favorites?"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("No")),
+                                  TextButton(
+                                      onPressed: () {
+                                        widget.universityRepo
+                                            .addFavourite(university);
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("Yes"))
+                                ],
+                              );
+                            })
+                      });
+            },
+          );
+        }
+      },
+    );
+  }
+}
+
+extension StringExtensions on String {
+  String toSentenceCase() {
+    List<String> words = split(" ");
+    for (int i = 0; i < words.length; i++) {
+      words[i] =
+          words[i][0].toUpperCase() + words[i].substring(1).toLowerCase();
+    }
+    return words.join(" ");
+  }
+}
+
+class UniversityListFilter extends StatefulWidget {
+  final FireStoreDataBase universityRepo;
+
+  const UniversityListFilter({super.key, required this.universityRepo});
+
+  @override
+  _UniversityListFilterState createState() => _UniversityListFilterState();
+}
+
+class _UniversityListFilterState extends State<UniversityListFilter> {
+  final UniversityLoader _universityLoader = UniversityLoader();
+  late Future<Map<String, List<Details>>> _universityDetails;
+
+  @override
+  void initState() {
+    super.initState();
+    _universityDetails =
+        _universityLoader.loadUniversityDetails().then((value) {
+      return _universityLoader.getUniversitiesByState(value);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Map<String, List<Details>>>(
+      future: _universityDetails,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No university details available'));
+        } else {
+          final data = snapshot.data!;
+          // sort the dictionary by key
+          final sortedKeys = data.keys.toList()..sort();
+
+          return ListView.builder(
+            itemCount: sortedKeys.length,
+            itemBuilder: (context, index) {
+              final key = sortedKeys[index];
+              final universities = data[key]!;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16, right: 16, top: 8, bottom: 8),
+                    child: Text(
+                      key.toUpperCase(),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                    ),
+                  ),
+                  ...universities
+                      .map((university) => ListTile(
+                            title: Text(
+                                university.University_Name?.toUpperCase() ??
+                                    ''),
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/details',
+                                arguments: {
+                                  'University_Id': university.docId,
+                                  'University_Name': university.University_Name,
+                                  'University_Type': university.University_Type,
+                                  'State': university.State,
+                                  'Location': university.Location,
+                                  'District': university.District,
+                                  'Address': university.address,
+                                  'Website': university.website,
+                                },
+                              );
+                            },
+                            onLongPress: () => {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text("Add to Favorites"),
+                                      content: Text(
+                                          "Do you want to add ${university.University_Name} to favorites?"),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text("No")),
+                                        TextButton(
+                                            onPressed: () {
+                                              widget.universityRepo
+                                                  .addFavourite(university);
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text("Yes"))
+                                      ],
+                                    );
+                                  })
+                            },
+                          ))
+                      .toList()
+                ],
+              );
             },
           );
         }
@@ -321,22 +448,24 @@ class _UniversityListState extends State<UniversityList> {
 }
 
 class AccountInfo extends StatelessWidget {
-  const AccountInfo();
+  const AccountInfo({super.key});
 
   @override
   Widget build(BuildContext context) {
     if (FirebaseAuth.instance.currentUser?.isAnonymous ?? true) {
       return Container(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Card(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Center(
-                child: Text("Account information not available"),
+        child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Card(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Text("Account information not available"),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ]),
+            ]),
       );
     }
 
@@ -345,12 +474,12 @@ class AccountInfo extends StatelessWidget {
       child: Column(
         children: [
           Card(
-            margin: EdgeInsets.only(right: 19),
+            margin: const EdgeInsets.only(right: 19),
             child: ListTile(
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Name"),
+                  const Text("Name"),
                   Text("${FirebaseAuth.instance.currentUser!.displayName}")
                 ],
               ),

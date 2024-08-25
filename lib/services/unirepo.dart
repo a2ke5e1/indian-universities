@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:csv/csv.dart';
 import 'package:http/http.dart' as http;
 import 'package:indian_universities/models/details.dart';
@@ -16,15 +15,24 @@ class UniversityLoader {
     final prefs = await SharedPreferences.getInstance();
     final cachedCsvData = prefs.getString('cached_university_data');
 
-    if (cachedCsvData != null) {
-      final List<List<dynamic>> csvData = const CsvToListConverter().convert(cachedCsvData);
-      // Sort the data by university name
-      csvData.sort((a, b) => a[1].toString().compareTo(b[1].toString()));
+    List<List<dynamic>> cleanData(List<List<dynamic>> data) {
+      // Remove empty rows
+      data.removeWhere((row) => row[1].toString().isEmpty);
 
       // Remove the header row
-      csvData.removeAt(0);
+      data.removeAt(0);
 
-      _cachedData = _convertToDetailsList(csvData);
+      // Sort the data by university name
+      data.sort((a, b) => a[1].toString().compareTo(b[1].toString()));
+
+      return data;
+    }
+
+    if (cachedCsvData != null) {
+      final List<List<dynamic>> csvData =
+          const CsvToListConverter().convert(cachedCsvData);
+
+      _cachedData = _convertToDetailsList(cleanData(csvData));
       return _cachedData!;
     }
 
@@ -34,15 +42,10 @@ class UniversityLoader {
 
     if (response.statusCode == 200) {
       final csvData = response.body;
-      final List<List<dynamic>> data = const CsvToListConverter().convert(csvData);
+      final List<List<dynamic>> data =
+          const CsvToListConverter().convert(csvData);
 
-      // Sort the data by university name
-      data.sort((a, b) => a[1].toString().compareTo(b[1].toString()));
-
-      // Remove the header row
-      data.removeAt(0);
-
-      _cachedData = _convertToDetailsList(data);
+      _cachedData = _convertToDetailsList(cleanData(data));
 
       // Save the data to SharedPreferences
       await prefs.setString('cached_university_data', csvData);
@@ -53,6 +56,36 @@ class UniversityLoader {
       loading = false;
       throw Exception('Failed to load university details');
     }
+  }
+
+  Map<String, List<Details>> getUniversitiesByState(
+      List<Details> universities) {
+    final Map<String, List<Details>> universitiesByState = {};
+
+    for (final university in universities) {
+      if (universitiesByState.containsKey(university.State)) {
+        universitiesByState[university.State]!.add(university);
+      } else {
+        universitiesByState[university.State ?? "Others"] = [university];
+      }
+    }
+
+    return universitiesByState;
+  }
+
+  Map<String, List<Details>> getUniversitiesByType(
+      List<Details> universities) {
+    final Map<String, List<Details>> universitiesByState = {};
+
+    for (final university in universities) {
+      if (universitiesByState.containsKey(university.University_Type)) {
+        universitiesByState[university.University_Type]!.add(university);
+      } else {
+        universitiesByState[university.University_Type ?? "Others"] = [university];
+      }
+    }
+
+    return universitiesByState;
   }
 
   List<Details> _convertToDetailsList(List<List<dynamic>> csvData) {

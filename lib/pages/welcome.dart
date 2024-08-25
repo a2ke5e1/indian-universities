@@ -2,7 +2,6 @@ import 'package:indian_universities/constants/Strings.dart';
 import 'package:indian_universities/constants/Urls.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:indian_universities/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,8 +15,8 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   Future checkFirstSeen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool _seen = (prefs.getBool('seen') ?? false);
-    if (_seen) {
+    bool seen = (prefs.getBool('seen') ?? false);
+    if (seen) {
       Navigator.of(context).pushReplacementNamed("/home");
     }
   }

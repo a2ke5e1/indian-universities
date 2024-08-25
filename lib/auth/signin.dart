@@ -162,7 +162,7 @@ class _SignInPageState extends State<SignInPage> {
     *  For mobile devices it is not possible to reach this state. */
     if (user != null) {
       Navigator.pop(context);
-      return Text("Invalid State");
+      return const Text("Invalid State");
     }
 
     return Scaffold(
@@ -198,7 +198,7 @@ class _SignInPageState extends State<SignInPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -237,13 +237,13 @@ class _SignInPageState extends State<SignInPage> {
                                             .colorScheme
                                             .error)),
                           )
-                        : SizedBox(
+                        : const SizedBox(
                             height: 0,
                           ),
                     Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: emailController,
                             autofillHints: const [AutofillHints.email],
@@ -268,7 +268,7 @@ class _SignInPageState extends State<SignInPage> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0),
                           child: TextFormField(
                             controller: passwordController,
                             autofillHints: const [AutofillHints.password],
@@ -296,7 +296,7 @@ class _SignInPageState extends State<SignInPage> {
                         onPressed: () {
                           Navigator.pushNamed(context, "/resetpassword");
                         },
-                        child: Text("Forgot Password?")),
+                        child: const Text("Forgot Password?")),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 16, 8, 16),
                       child: Row(
@@ -308,12 +308,12 @@ class _SignInPageState extends State<SignInPage> {
                                 onPressed: () {
                                   Navigator.pushNamed(context, "/signup");
                                 },
-                                child: Text("Not Registered? Register.")),
+                                child: const Text("Not Registered? Register.")),
                           ),
                           SizedBox(
                             height: 45,
                             child: FilledButton.tonal(
-                                onPressed: handleLogin, child: Text("Login")),
+                                onPressed: handleLogin, child: const Text("Login")),
                           ),
                         ],
                       ),
@@ -330,10 +330,10 @@ class _SignInPageState extends State<SignInPage> {
                             label: const Text("Sign In with Google")),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 100,
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Footer(
                           footerMessage:

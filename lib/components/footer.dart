@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Footer extends StatefulWidget {
-  Footer({
-    Key? key,
+  const Footer({
+    super.key,
     required this.footerMessage,
-  }) : super(key: key);
+  });
 
   final String? footerMessage;
 

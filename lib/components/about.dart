@@ -28,7 +28,7 @@ class About {
     final ThemeData themeData = Theme.of(context);
     final MaterialLocalizations localizations =
     MaterialLocalizations.of(context);
-    const double _textVerticalSeparation = 18.0;
+    const double textVerticalSeparation = 18.0;
 
     showDialog(
         context: context,
@@ -46,14 +46,14 @@ class About {
                     ),
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
                         child: ListBody(
                           children: <Widget>[
                             Text(Strings.APP_NAME,
                                 style: themeData.textTheme.headlineSmall),
                             Text(Strings.APP_VERSION,
                                 style: themeData.textTheme.bodyMedium),
-                            const SizedBox(height: _textVerticalSeparation),
+                            const SizedBox(height: textVerticalSeparation),
                             Text('Developed by ${Strings.APP_ORG}\n\n',
                                 style: themeData.textTheme.bodySmall),
                           ],

@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:indian_universities/auth/signin.dart';
 
 class AuthGate extends StatelessWidget {
   Widget child;
@@ -25,11 +24,11 @@ class AuthGate extends StatelessWidget {
 
 class AuthService {
   static Future<UserCredential?> signupWithGoogle(BuildContext context) async {
-    final _auth = FirebaseAuth.instance;
-    final GoogleSignIn _googleSignIn = GoogleSignIn();
+    final auth = FirebaseAuth.instance;
+    final GoogleSignIn googleSignIn = GoogleSignIn();
 
     final GoogleSignInAccount? googleSignInAccount =
-        await _googleSignIn.signIn();
+        await googleSignIn.signIn();
 
     if (googleSignInAccount != null) {
       final GoogleSignInAuthentication googleSignInAuthentication =
@@ -39,8 +38,9 @@ class AuthService {
           accessToken: googleSignInAuthentication.accessToken);
 
       // Getting users credential
-      return await _auth.signInWithCredential(authCredential);
+      return await auth.signInWithCredential(authCredential);
     }
+    return null;
   }
 
   static void signInAnonIfNotSignedIn() async {

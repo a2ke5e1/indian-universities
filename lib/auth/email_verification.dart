@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../components/footer.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
-  const EmailVerificationScreen({Key? key}) : super(key: key);
+  const EmailVerificationScreen({super.key});
 
   @override
   State<EmailVerificationScreen> createState() =>
@@ -130,9 +130,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         )),
                     const SizedBox(height: 80),
-                    CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                     const SizedBox(height: 8),
-                    Text(
+                    const Text(
                       'Verifying email....',
                     ),
                     const SizedBox(height: 57),
@@ -151,10 +151,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         child: const Text('Resend'),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 100,
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Footer(footerMessage: "All your data are secured on encrypted service of Google Firebase."),
                     )
