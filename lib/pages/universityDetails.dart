@@ -1,10 +1,11 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SearchUni extends StatefulWidget {
   const SearchUni({super.key});
@@ -65,6 +66,13 @@ class _SearchUniState extends State<SearchUni> {
   void initState() {
     super.initState();
     print("Home page ... ");
+  }
+
+  // Open address in maps
+  void openAddressInMaps() async {
+    final url =
+        'https://www.google.com/maps/search/?api=1&query=${data['Address']}';
+    _launchInBrowser(Uri.parse(url));
   }
 
   @override
@@ -141,6 +149,7 @@ class _SearchUniState extends State<SearchUni> {
                         data['Address'],
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
+                      onTap: openAddressInMaps,
                     ),
                     ListTile(
                       title: Text(
