@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
-import 'package:indian_universities/services/firestore.dart';
+import 'package:indian_universities/services/unirepo.dart'; // Import the UniversityLoader class
+
 import '../models/details.dart';
 
 class SearchBar extends StatefulWidget {
@@ -23,9 +23,12 @@ class _SearchBarState extends State<SearchBar> {
 }
 
 class CustomSearchDelegate extends SearchDelegate {
-  int navigationIndex = 1;
-  FireStoreDataBase universityRepo = FireStoreDataBase();
-  CustomSearchDelegate({required this.navigationIndex});
+  final UniversityLoader _universityLoader = UniversityLoader();
+  late Future<List<List<dynamic>>> _universityDetails;
+
+  CustomSearchDelegate() {
+    _universityDetails = _universityLoader.loadUniversityDetails();
+  }
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -51,72 +54,51 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     if (query.isEmpty) {
-      return ListView(); // Return null when the search query is empty
+      return ListView(); // Return empty ListView when the search query is empty
     }
 
-    return FirestoreListView<Details>(
-      query: navigationIndex == 1
-          ? universityRepo.universityRef.startAt([query.toUpperCase()]).endAt(
-              ['${query.toUpperCase()}\uf8ff']).limit(10)
-          : universityRepo.favouriteref
-              .orderBy("University_Name")
-              .startAt([query.toUpperCase()]).endAt(
-                  ['${query.toUpperCase()}\uf8ff']).limit(10),
-      loadingBuilder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-      pageSize: 10,
-      itemBuilder: (context, doc) {
-        var uni = doc.data();
-        return ListTile(
-            title: Text(uni.University_Name.toString()),
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/details',
-                arguments: {
-                  'University_Name': uni.University_Name,
-                  'University_Type': uni.University_Type,
-                  'State': uni.State,
-                  'Location': uni.Location,
-                  'District': uni.District,
-                  'Address': uni.address,
-                  'Website': uni.website,
+    return FutureBuilder<List<List<dynamic>>>(
+      future: _universityDetails,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No university details available'));
+        } else {
+          final data = snapshot.data!
+              .where((university) => university[1]
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase()))
+              .toList();
+          return ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final university = data[index];
+              return ListTile(
+                title: Text(university[1].toString()), // Assuming the first column is the university name
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/details',
+                    arguments: {
+                      'University_Id': university[0],
+                      'University_Name': university[1],
+                      'University_Type': university[5],
+                      'State': university[2],
+                      'Location': university[7],
+                      'District': university[3],
+                      'Address': university[8],
+                      'Website': university[4],
+                    },
+                  );
                 },
               );
             },
-            onLongPress: () => {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Add to Favorites"),
-                          content: Text(
-                              "Do you want to add ${uni.University_Name} to favorites?"),
-                          actions: [
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("No")),
-                            TextButton(
-                                onPressed: () {
-                                  universityRepo.addFavourite(uni);
-                                  Navigator.pop(context, {
-                                    'University_Name': uni.University_Name,
-                                    'University_Type': uni.University_Type,
-                                    'State': uni.State,
-                                    'Location': uni.Location,
-                                    'District': uni.District,
-                                    'Address': uni.address,
-                                    'Website': uni.website,
-                                  });
-                                },
-                                child: const Text("Yes"))
-                          ],
-                        );
-                      })
-                });
+          );
+        }
       },
     );
   }
@@ -124,72 +106,51 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     if (query.isEmpty) {
-      return ListView(); // Return null when the search query is empty
+      return ListView(); // Return empty ListView when the search query is empty
     }
 
-    return FirestoreListView<Details>(
-      query: navigationIndex == 1
-          ? universityRepo.universityRef.startAt([query.toUpperCase()]).endAt(
-              ['${query.toUpperCase()}\uf8ff']).limit(10)
-          : universityRepo.favouriteref
-              .orderBy("University_Name")
-              .startAt([query.toUpperCase()]).endAt(
-                  ['${query.toUpperCase()}\uf8ff']).limit(10),
-      loadingBuilder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-      pageSize: 10,
-      itemBuilder: (context, doc) {
-        var uni = doc.data();
-        return ListTile(
-            title: Text(uni.University_Name.toString()),
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/details',
-                arguments: {
-                  'University_Name': uni.University_Name,
-                  'University_Type': uni.University_Type,
-                  'State': uni.State,
-                  'Location': uni.Location,
-                  'District': uni.District,
-                  'Address': uni.address,
-                  'Website': uni.website,
+    return FutureBuilder<List<List<dynamic>>>(
+      future: _universityDetails,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No university details available'));
+        } else {
+          final data = snapshot.data!
+              .where((university) => university[1]
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase()))
+              .toList();
+          return ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final university = data[index];
+              return ListTile(
+                title: Text(university[1].toString()), // Assuming the first column is the university name
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/details',
+                    arguments: {
+                      'University_Id': university[0],
+                      'University_Name': university[1],
+                      'University_Type': university[5],
+                      'State': university[2],
+                      'Location': university[7],
+                      'District': university[3],
+                      'Address': university[8],
+                      'Website': university[4],
+                    },
+                  );
                 },
               );
             },
-            onLongPress: () => {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Add to Favorites"),
-                          content: Text(
-                              "Do you want to add ${uni.University_Name} to favorites?"),
-                          actions: [
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("No")),
-                            TextButton(
-                                onPressed: () {
-                                  universityRepo.addFavourite(uni);
-                                  Navigator.pop(context, {
-                                    'University_Name': uni.University_Name,
-                                    'University_Type': uni.University_Type,
-                                    'State': uni.State,
-                                    'Location': uni.Location,
-                                    'District': uni.District,
-                                    'Address': uni.address,
-                                    'Website': uni.website,
-                                  });
-                                },
-                                child: const Text("Yes"))
-                          ],
-                        );
-                      })
-                });
+          );
+        }
       },
     );
   }

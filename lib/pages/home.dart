@@ -7,6 +7,7 @@ import 'package:indian_universities/components/about.dart';
 import 'package:indian_universities/models/details.dart';
 import 'package:indian_universities/screens/search.dart';
 import 'package:indian_universities/services/auth_service.dart';
+import 'package:indian_universities/services/unirepo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/firestore.dart';
@@ -105,8 +106,7 @@ class _HomeState extends State<Home> {
                         onPressed: () {
                           showSearch(
                               context: context,
-                              delegate: CustomSearchDelegate(
-                                  navigationIndex: _navigationIndex));
+                              delegate: CustomSearchDelegate());
                         },
                         icon: const Icon(Icons.search))
                     : Container(),
@@ -131,7 +131,9 @@ class _HomeState extends State<Home> {
               ],
             ),
             body: <Widget>[
-              UniversityList(universityRepo: universityRepo),
+              UniversityList(
+                universityRepo: universityRepo,
+              ),
               FavoritesList(universityRepo: universityRepo),
               AccountInfo(),
             ][_navigationIndex],
@@ -184,12 +186,13 @@ class FavoritesList extends StatelessWidget {
           return ListTile(
             title: Text(uni.University_Name.toString()),
             onTap: () {
+              print(uni );
               Navigator.pushNamed(
                 context,
                 '/details',
                 arguments: {
-                  'University_Id': uni.getUniversityID(),
-                  'University_Name': uni.getUniversityName(),
+                  'University_Id': uni.docId,
+                  'University_Name': uni.University_Name,
                   'University_Type': uni.University_Type,
                   'State': uni.State,
                   'Location': uni.Location,
@@ -228,72 +231,106 @@ class FavoritesList extends StatelessWidget {
   }
 }
 
-class UniversityList extends StatelessWidget {
+class UniversityList extends StatefulWidget {
   final FireStoreDataBase universityRepo;
 
-  const UniversityList({required this.universityRepo});
+  const UniversityList({super.key, required this.universityRepo});
+
+  @override
+  _UniversityListState createState() => _UniversityListState();
+}
+
+class _UniversityListState extends State<UniversityList> {
+  final UniversityLoader _universityLoader = UniversityLoader();
+  late Future<List<List<dynamic>>> _universityDetails;
+
+  @override
+  void initState() {
+    super.initState();
+    _universityDetails = _universityLoader.loadUniversityDetails();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FirestoreListView<Details>(
-      query: universityRepo.universityRef,
-      pageSize: 25,
-      loadingBuilder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-      itemBuilder: (context, doc) {
-        var uni = doc.data();
-        return ListTile(
-          title: Text(uni.getUniversityName().toString()),
-          onTap: () {
-            Navigator.pushNamed(
-              context,
-              '/details',
-              arguments: {
-                'University_Id': uni.getUniversityID(),
-                'University_Name': uni.getUniversityName(),
-                'University_Type': uni.University_Type,
-                'State': uni.State,
-                'Location': uni.Location,
-                'District': uni.District,
-                'Address': uni.address,
-                'Website': uni.website,
-              },
-            );
-          },
-          onLongPress: () => {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text("Add to Favorites"),
-                    content: Text(
-                        "Do you want to add ${uni.University_Name} to favorites?"),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text("No")),
-                      TextButton(
-                          onPressed: () {
-                            universityRepo.addFavourite(uni);
-                            Navigator.pop(context, {
-                              'University_Name': uni.University_Name,
-                              'University_Type': uni.University_Type,
-                              'State': uni.State,
-                              'Location': uni.Location,
-                              'District': uni.District,
-                              'Address': uni.address,
-                              'Website': uni.website,
-                            });
-                          },
-                          child: const Text("Yes"))
-                    ],
-                  );
-                })
-          },
-        );
+    return FutureBuilder<List<List<dynamic>>>(
+      future: _universityDetails,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No university details available'));
+        } else {
+          final data = snapshot.data!;
+          return ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final university = data[index];
+              return ListTile(
+                  title: Text(university[1].toString()),
+                  // Assuming the first column is the university name
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/details',
+                      arguments: {
+                        'University_Id': university[0],
+                        'University_Name': university[1],
+                        'University_Type': university[5],
+                        'State': university[2],
+                        'Location': university[7],
+                        'District': university[3],
+                        'Address': university[8],
+                        'Website': university[4],
+                      },
+                    );
+                  },
+                  onLongPress: () => {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Add to Favorites"),
+                                content: Text(
+                                    "Do you want to add ${university[1]} to favorites?"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("No")),
+                                  TextButton(
+                                      onPressed: () {
+                                        widget.universityRepo.addFavourite(
+                                            Details(
+                                                docId: university[0],
+                                                University_Type: university[5],
+                                                State: university[2],
+                                                Location: university[7],
+                                                District: university[3],
+                                                address: university[8],
+                                                website: university[4],
+                                                University_Name:
+                                                    university[1]));
+                                        Navigator.pop(context, {
+                                          'University_Name': university[1],
+                                          'University_Type': university[5],
+                                          'State': university[2],
+                                          'Location': university[7],
+                                          'District': university[3],
+                                          'Address': university[8],
+                                          'Website': university[4],
+                                        });
+                                      },
+                                      child: const Text("Yes"))
+                                ],
+                              );
+                            })
+                      });
+            },
+          );
+        }
       },
     );
   }
