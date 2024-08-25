@@ -46,8 +46,14 @@ class _HomeState extends State<Home> {
   }
 
   static const _items = <NavigationDestination>[
-    NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-    NavigationDestination(icon: Icon(Icons.favorite), label: "Favorites"),
+    NavigationDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home),
+        label: "Home"),
+    NavigationDestination(
+        icon: Icon(Icons.bookmark_border),
+        selectedIcon: Icon(Icons.bookmark),
+        label: "Bookmarks"),
     // NavigationDestination(icon: Icon(Icons.person), label: "Account")
   ];
 
@@ -344,14 +350,26 @@ class UniversityListFilter extends StatefulWidget {
 class _UniversityListFilterState extends State<UniversityListFilter> {
   final UniversityLoader _universityLoader = UniversityLoader();
   late Future<Map<String, List<Details>>> _universityDetails;
+  List<Details> _favouriteUniversities = [];
 
   @override
   void initState() {
     super.initState();
+    // get favorite universities
+    widget.universityRepo.getFavouriteData().then((value) {
+      setState(() {
+        _favouriteUniversities = value;
+      });
+    });
     _universityDetails =
         _universityLoader.loadUniversityDetails().then((value) {
       return _universityLoader.getUniversitiesByState(value);
     });
+  }
+
+  bool isFavourite(String? universityId) {
+    return _favouriteUniversities
+        .any((element) => element.docId == universityId);
   }
 
   @override
@@ -394,6 +412,28 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
                             title: Text(
                                 university.University_Name?.toUpperCase() ??
                                     ''),
+                            trailing: isFavourite(university.docId)
+                                ? IconButton(
+                                    onPressed: () {
+                                      widget.universityRepo
+                                          .removeFavourite(university);
+                                      setState(() {
+                                        _favouriteUniversities.removeWhere(
+                                            (element) =>
+                                                element.University_Name ==
+                                                university.University_Name);
+                                      });
+                                    },
+                                    icon: const Icon(Icons.bookmark))
+                                : IconButton(
+                                    onPressed: () {
+                                      widget.universityRepo
+                                          .addFavourite(university);
+                                      setState(() {
+                                        _favouriteUniversities.add(university);
+                                      });
+                                    },
+                                    icon: const Icon(Icons.bookmark_border)),
                             onTap: () {
                               Navigator.pushNamed(
                                 context,
@@ -409,31 +449,6 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
                                   'Website': university.website,
                                 },
                               );
-                            },
-                            onLongPress: () => {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text("Add to Favorites"),
-                                      content: Text(
-                                          "Do you want to add ${university.University_Name} to favorites?"),
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text("No")),
-                                        TextButton(
-                                            onPressed: () {
-                                              widget.universityRepo
-                                                  .addFavourite(university);
-                                              Navigator.pop(context);
-                                            },
-                                            child: const Text("Yes"))
-                                      ],
-                                    );
-                                  })
                             },
                           ))
                       .toList()

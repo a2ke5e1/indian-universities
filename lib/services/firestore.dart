@@ -93,19 +93,21 @@ class FireStoreDataBase {
       return [];
     }
   }
-}
 
-Future<List<Details>> getFavouriteData() async {
-  try {
-    List<Details> favList = [];
-    await FireStoreDataBase().favouriteref.get().then((querySnapshot) {
-      for (var result in querySnapshot.docs) {
-        favList.add(result.data());
-      }
-    });
-    return favList;
-  } catch (e) {
-    debugPrint("Error - $e");
-    return [];
+  Future<List<Details>> getFavouriteData() async {
+    try {
+      List<Details> favList = [];
+      await FireStoreDataBase().favouriteref.get().then((querySnapshot) {
+        for (var result in querySnapshot.docs) {
+          favList.add(result.data());
+        }
+      });
+      return favList;
+    } catch (e) {
+      debugPrint("Error - $e");
+      return [];
+    }
   }
 }
+
+
