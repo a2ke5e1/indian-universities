@@ -17,7 +17,6 @@ class _WelcomePageState extends State<WelcomePage> {
   Future checkFirstSeen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool _seen = (prefs.getBool('seen') ?? false);
-    AuthService.signInAnonIfNotSignedIn();
     if (_seen) {
       Navigator.of(context).pushReplacementNamed("/home");
     }

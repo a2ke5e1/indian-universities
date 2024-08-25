@@ -55,7 +55,7 @@ class _SignInPageState extends State<SignInPage> {
           password: passwordController.text.toString(),
         );
         TextInput.finishAutofillContext();
-        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil("/home", (route) => false);
       } on FirebaseAuthException catch (e) {
         setState(() {
           error = true;
@@ -109,7 +109,7 @@ class _SignInPageState extends State<SignInPage> {
 
     try {
       await AuthService.signupWithGoogle(context)
-          .then((value) => Navigator.of(context, rootNavigator: true).pop());
+          .then((value) => Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil("/home", (route) => false));
     } on FirebaseAuthException catch (e) {
       setState(() {
         error = true;
@@ -205,7 +205,7 @@ class _SignInPageState extends State<SignInPage> {
                             height: 10,
                           ),
                           Text(
-                            "Welcome back to Eye Care!\nPlease sign in to continue.",
+                            "Welcome back to ${Strings.APP_NAME}!\nPlease sign in to continue.",
                             style: TextStyle(
                               color: Theme.of(context)
                                   .colorScheme

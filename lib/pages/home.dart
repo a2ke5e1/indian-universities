@@ -74,12 +74,18 @@ class _HomeState extends State<Home> {
         }
       case 1:
         {
-          if (user?.isAnonymous ?? true) {
-            AuthService.logout();
-            Navigator.pushNamed(context, '/signin');
-          } else {
-            AuthService.logout();
-          }
+          AuthService.logout();
+          Navigator.pushNamedAndRemoveUntil(
+              context, '/signin', (route) => false);
+
+          break;
+        }
+      case 2:
+        {
+          AuthService.logout();
+          setState(() {
+            _onNavigationTap(0);
+          });
           break;
         }
     }
@@ -87,42 +93,56 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: [
-          _navigationIndex != 2
-              ? IconButton(
-                  onPressed: () {
-                    showSearch(
-                        context: context,
-                        delegate: CustomSearchDelegate(
-                            navigationIndex: _navigationIndex));
-                  },
-                  icon: const Icon(Icons.search))
-              : Container(),
-          PopupMenuButton<int>(
-            onSelected: handlePopupMenu,
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 0, child: Text('About')),
-              PopupMenuItem(
-                  value: 1,
-                  child: Text(user?.isAnonymous ?? true ? "Login" : "Logout")),
-            ],
-          )
-        ],
-      ),
-      body: <Widget>[
-        UniversityList(universityRepo: universityRepo),
-        FavoritesList(universityRepo: universityRepo),
-        AccountInfo(),
-      ][_navigationIndex],
-      bottomNavigationBar: NavigationBar(
-        destinations: _items,
-        onDestinationSelected: _onNavigationTap,
-        selectedIndex: _navigationIndex,
-      ),
-    );
+    return StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, AsyncSnapshot<User?> snapshot) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(title),
+              actions: [
+                _navigationIndex == 0
+                    ? IconButton(
+                        onPressed: () {
+                          showSearch(
+                              context: context,
+                              delegate: CustomSearchDelegate(
+                                  navigationIndex: _navigationIndex));
+                        },
+                        icon: const Icon(Icons.search))
+                    : Container(),
+                PopupMenuButton<int>(
+                  onSelected: handlePopupMenu,
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 0,
+                      child: Text("About"),
+                    ),
+                    FirebaseAuth.instance.currentUser?.isAnonymous ?? true
+                        ? const PopupMenuItem(
+                            value: 1,
+                            child: Text("Login"),
+                          )
+                        : const PopupMenuItem(
+                            value: 2,
+                            child: Text("Logout"),
+                          )
+                  ],
+                )
+              ],
+            ),
+            body: <Widget>[
+              UniversityList(universityRepo: universityRepo),
+              FavoritesList(universityRepo: universityRepo),
+              AccountInfo(),
+            ][_navigationIndex],
+            bottomNavigationBar: NavigationBar(
+              destinations: _items,
+              onDestinationSelected: _onNavigationTap,
+              selectedIndex: _navigationIndex,
+            ),
+          );
+          ;
+        });
   }
 }
 

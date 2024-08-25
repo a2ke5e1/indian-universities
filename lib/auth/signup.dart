@@ -57,7 +57,7 @@ class _SignUpPageState extends State<SignUpPage> {
         );
         final user = credential.user;
         user?.updateDisplayName(nameController.text);
-        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil("/home", (route) => false);
         TextInput.finishAutofillContext();
       } on FirebaseAuthException catch (e) {
         debugPrint(e.message);
@@ -114,7 +114,7 @@ class _SignUpPageState extends State<SignUpPage> {
       Navigator.of(context, rootNavigator: true).pop(); // Close the dialog
 
       // Goes back to home page
-      Navigator.pop(context);
+      Navigator.pushNamedAndRemoveUntil(context, "/home", (route) => false);
 
     } on FirebaseAuthException catch (e) {
       debugPrint(e.message);
