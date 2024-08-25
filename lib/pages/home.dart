@@ -194,6 +194,33 @@ class FavoritesList extends StatelessWidget {
           var uni = doc.data();
           return ListTile(
             title: Text(uni.University_Name.toString()),
+            trailing: IconButton(
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Remove from Favorites"),
+                        content: Text(
+                            "Do you want to remove ${uni.University_Name} from favorites?"),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text("No")),
+                          TextButton(
+                              onPressed: () {
+                                universityRepo.removeFavourite(uni);
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Yes"))
+                        ],
+                      );
+                    });
+              },
+              icon: const Icon(Icons.delete),
+            ),
             onTap: () {
               print(uni);
               Navigator.pushNamed(
@@ -210,30 +237,6 @@ class FavoritesList extends StatelessWidget {
                   'Website': uni.website,
                 },
               );
-            },
-            onLongPress: () => {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text("Remove from Favorites"),
-                      content: Text(
-                          "Do you want to remove ${uni.University_Name} from favorites?"),
-                      actions: [
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text("No")),
-                        TextButton(
-                            onPressed: () {
-                              universityRepo.removeFavourite(uni);
-                              Navigator.pop(context);
-                            },
-                            child: const Text("Yes"))
-                      ],
-                    );
-                  })
             },
           );
         });
@@ -372,6 +375,12 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
         .any((element) => element.docId == universityId);
   }
 
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, List<Details>>>(
@@ -423,6 +432,7 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
                                                 element.University_Name ==
                                                 university.University_Name);
                                       });
+                                      _showSnackBar(context, "Removed from Bookmarks");
                                     },
                                     icon: const Icon(Icons.bookmark))
                                 : IconButton(
@@ -432,6 +442,7 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
                                       setState(() {
                                         _favouriteUniversities.add(university);
                                       });
+                                      _showSnackBar(context, "Added to Bookmarks");
                                     },
                                     icon: const Icon(Icons.bookmark_border)),
                             onTap: () {
