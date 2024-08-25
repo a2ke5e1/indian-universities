@@ -24,10 +24,13 @@ class _SearchBarState extends State<SearchBar> {
 
 class CustomSearchDelegate extends SearchDelegate {
   final UniversityLoader _universityLoader = UniversityLoader();
-  late Future<List<Details>> _universityDetails;
+  late Future<Map<String, List<Details>>> _universityDetails;
 
   CustomSearchDelegate() {
-    _universityDetails = _universityLoader.loadUniversityDetails();
+    _universityDetails =
+        _universityLoader.loadUniversityDetails().then((value) {
+          return _universityLoader.getUniversitiesByState(value);
+        });
   }
 
   @override
@@ -57,7 +60,7 @@ class CustomSearchDelegate extends SearchDelegate {
       return ListView(); // Return empty ListView when the search query is empty
     }
 
-    return FutureBuilder<List<Details>>(
+    return FutureBuilder<Map<String, List<Details>>>(
       future: _universityDetails,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -67,34 +70,64 @@ class CustomSearchDelegate extends SearchDelegate {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No university details available'));
         } else {
-          final data = snapshot.data!
-              .where((university) => university.University_Name
-              .toString()
-              .toLowerCase()
-              .contains(query.toLowerCase()))
-              .toList();
+          final data = snapshot.data!;
+          // sort the dictionary by key
+          final sortedKeys = data.keys.where(
+                  (key) => data[key]!
+                      .any((university) =>
+                  university.University_Name!
+                      .toLowerCase()
+                      .contains(query.toLowerCase())))
+              .toList()
+            ..sort();
           return ListView.builder(
-            itemCount: data.length,
+            itemCount: sortedKeys.length,
             itemBuilder: (context, index) {
-              final university = data[index];
-              return ListTile(
-                title: Text(university.University_Name.toString()), // Assuming the first column is the university name
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/details',
-                    arguments: {
-                      'University_Id': university.docId,
-                      'University_Name': university.University_Name,
-                      'University_Type': university.University_Type,
-                      'State': university.State,
-                      'Location': university.Location,
-                      'District': university.District,
-                      'Address': university.address,
-                      'Website': university.website,
+              final key = sortedKeys[index];
+              final universities = data[key]!;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16, right: 16, top: 8, bottom: 8),
+                    child: Text(
+                      key.toUpperCase(),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  ...universities
+                      .where((university) =>
+                  university.University_Name!
+                      .toLowerCase()
+                      .contains(query.toLowerCase()))
+                      .map((university) => ListTile(
+                    title: Text(
+                        university.University_Name?.toUpperCase() ??
+                            ''),
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/details',
+                        arguments: {
+                          'University_Id': university.docId,
+                          'University_Name': university.University_Name,
+                          'University_Type': university.University_Type,
+                          'State': university.State,
+                          'Location': university.Location,
+                          'District': university.District,
+                          'Address': university.address,
+                          'Website': university.website,
+                        },
+                      );
                     },
-                  );
-                },
+                  ))
+
+                  ,
+                ],
               );
             },
           );
@@ -109,7 +142,7 @@ class CustomSearchDelegate extends SearchDelegate {
       return ListView(); // Return empty ListView when the search query is empty
     }
 
-    return FutureBuilder<List<Details>>(
+    return FutureBuilder<Map<String, List<Details>>>(
       future: _universityDetails,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -119,34 +152,64 @@ class CustomSearchDelegate extends SearchDelegate {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No university details available'));
         } else {
-          final data = snapshot.data!
-              .where((university) => university.University_Name
-              .toString()
-              .toLowerCase()
-              .contains(query.toLowerCase()))
-              .toList();
+          final data = snapshot.data!;
+          // sort the dictionary by key
+          final sortedKeys = data.keys.where(
+                  (key) => data[key]!
+                  .any((university) =>
+                  university.University_Name!
+                      .toLowerCase()
+                      .contains(query.toLowerCase())))
+              .toList()
+            ..sort();
+
           return ListView.builder(
-            itemCount: data.length,
+            itemCount: sortedKeys.length,
             itemBuilder: (context, index) {
-              final university = data[index];
-              return ListTile(
-                title: Text(university.University_Name.toString()), // Assuming the first column is the university name
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/details',
-                    arguments: {
-                      'University_Id': university.docId,
-                      'University_Name': university.University_Name,
-                      'University_Type': university.University_Type,
-                      'State': university.State,
-                      'Location': university.Location,
-                      'District': university.District,
-                      'Address': university.address,
-                      'Website': university.website,
+              final key = sortedKeys[index];
+              final universities = data[key]!;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16, right: 16, top: 8, bottom: 8),
+                    child: Text(
+                      key.toUpperCase(),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  ...universities
+                      .where((university) =>
+                  university.University_Name!
+                      .toLowerCase()
+                      .contains(query.toLowerCase()))
+                      .map((university) => ListTile(
+                    title: Text(
+                        university.University_Name?.toUpperCase() ??
+                            ''),
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/details',
+                        arguments: {
+                          'University_Id': university.docId,
+                          'University_Name': university.University_Name,
+                          'University_Type': university.University_Type,
+                          'State': university.State,
+                          'Location': university.Location,
+                          'District': university.District,
+                          'Address': university.address,
+                          'Website': university.website,
+                        },
+                      );
                     },
-                  );
-                },
+                  ))
+                      .toList()
+                ],
               );
             },
           );
