@@ -24,7 +24,7 @@ class _SearchBarState extends State<SearchBar> {
 
 class CustomSearchDelegate extends SearchDelegate {
   final UniversityLoader _universityLoader = UniversityLoader();
-  late Future<List<List<dynamic>>> _universityDetails;
+  late Future<List<Details>> _universityDetails;
 
   CustomSearchDelegate() {
     _universityDetails = _universityLoader.loadUniversityDetails();
@@ -57,7 +57,7 @@ class CustomSearchDelegate extends SearchDelegate {
       return ListView(); // Return empty ListView when the search query is empty
     }
 
-    return FutureBuilder<List<List<dynamic>>>(
+    return FutureBuilder<List<Details>>(
       future: _universityDetails,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -68,7 +68,7 @@ class CustomSearchDelegate extends SearchDelegate {
           return const Center(child: Text('No university details available'));
         } else {
           final data = snapshot.data!
-              .where((university) => university[1]
+              .where((university) => university.University_Name
               .toString()
               .toLowerCase()
               .contains(query.toLowerCase()))
@@ -78,20 +78,20 @@ class CustomSearchDelegate extends SearchDelegate {
             itemBuilder: (context, index) {
               final university = data[index];
               return ListTile(
-                title: Text(university[1].toString()), // Assuming the first column is the university name
+                title: Text(university.University_Name.toString()), // Assuming the first column is the university name
                 onTap: () {
                   Navigator.pushNamed(
                     context,
                     '/details',
                     arguments: {
-                      'University_Id': university[0],
-                      'University_Name': university[1],
-                      'University_Type': university[5],
-                      'State': university[2],
-                      'Location': university[7],
-                      'District': university[3],
-                      'Address': university[8],
-                      'Website': university[4],
+                      'University_Id': university.docId,
+                      'University_Name': university.University_Name,
+                      'University_Type': university.University_Type,
+                      'State': university.State,
+                      'Location': university.Location,
+                      'District': university.District,
+                      'Address': university.address,
+                      'Website': university.website,
                     },
                   );
                 },
@@ -109,7 +109,7 @@ class CustomSearchDelegate extends SearchDelegate {
       return ListView(); // Return empty ListView when the search query is empty
     }
 
-    return FutureBuilder<List<List<dynamic>>>(
+    return FutureBuilder<List<Details>>(
       future: _universityDetails,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -120,7 +120,7 @@ class CustomSearchDelegate extends SearchDelegate {
           return const Center(child: Text('No university details available'));
         } else {
           final data = snapshot.data!
-              .where((university) => university[1]
+              .where((university) => university.University_Name
               .toString()
               .toLowerCase()
               .contains(query.toLowerCase()))
@@ -130,20 +130,20 @@ class CustomSearchDelegate extends SearchDelegate {
             itemBuilder: (context, index) {
               final university = data[index];
               return ListTile(
-                title: Text(university[1].toString()), // Assuming the first column is the university name
+                title: Text(university.University_Name.toString()), // Assuming the first column is the university name
                 onTap: () {
                   Navigator.pushNamed(
                     context,
                     '/details',
                     arguments: {
-                      'University_Id': university[0],
-                      'University_Name': university[1],
-                      'University_Type': university[5],
-                      'State': university[2],
-                      'Location': university[7],
-                      'District': university[3],
-                      'Address': university[8],
-                      'Website': university[4],
+                      'University_Id': university.docId,
+                      'University_Name': university.University_Name,
+                      'University_Type': university.University_Type,
+                      'State': university.State,
+                      'Location': university.Location,
+                      'District': university.District,
+                      'Address': university.address,
+                      'Website': university.website,
                     },
                   );
                 },

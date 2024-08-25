@@ -245,7 +245,7 @@ class UniversityList extends StatefulWidget {
 
 class _UniversityListState extends State<UniversityList> {
   final UniversityLoader _universityLoader = UniversityLoader();
-  late Future<List<List<dynamic>>> _universityDetails;
+  late Future<List<Details>> _universityDetails;
 
   @override
   void initState() {
@@ -255,7 +255,7 @@ class _UniversityListState extends State<UniversityList> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<List<dynamic>>>(
+    return FutureBuilder<List<Details>>(
       future: _universityDetails,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -271,66 +271,47 @@ class _UniversityListState extends State<UniversityList> {
             itemBuilder: (context, index) {
               final university = data[index];
               return ListTile(
-                  title: Text(university[1].toString()),
-                  // Assuming the first column is the university name
+                  title: Text(university.University_Name ?? ''),
                   onTap: () {
                     Navigator.pushNamed(
                       context,
                       '/details',
                       arguments: {
-                        'University_Id': university[0],
-                        'University_Name': university[1],
-                        'University_Type': university[5],
-                        'State': university[2],
-                        'Location': university[7],
-                        'District': university[3],
-                        'Address': university[8],
-                        'Website': university[4],
+                        'University_Id': university.docId,
+                        'University_Name': university.University_Name,
+                        'University_Type': university.University_Type,
+                        'State': university.State,
+                        'Location': university.Location,
+                        'District': university.District,
+                        'Address': university.address,
+                        'Website': university.website,
                       },
                     );
                   },
                   onLongPress: () => {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text("Add to Favorites"),
-                                content: Text(
-                                    "Do you want to add ${university[1]} to favorites?"),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text("No")),
-                                  TextButton(
-                                      onPressed: () {
-                                        widget.universityRepo.addFavourite(
-                                            Details(
-                                                docId: university[0],
-                                                University_Type: university[5],
-                                                State: university[2],
-                                                Location: university[7],
-                                                District: university[3],
-                                                address: university[8],
-                                                website: university[4],
-                                                University_Name:
-                                                    university[1]));
-                                        Navigator.pop(context, {
-                                          'University_Name': university[1],
-                                          'University_Type': university[5],
-                                          'State': university[2],
-                                          'Location': university[7],
-                                          'District': university[3],
-                                          'Address': university[8],
-                                          'Website': university[4],
-                                        });
-                                      },
-                                      child: const Text("Yes"))
-                                ],
-                              );
-                            })
-                      });
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Add to Favorites"),
+                            content: Text(
+                                "Do you want to add ${university.University_Name} to favorites?"),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text("No")),
+                              TextButton(
+                                  onPressed: () {
+                                    widget.universityRepo.addFavourite(university);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text("Yes"))
+                            ],
+                          );
+                        })
+                  });
             },
           );
         }
