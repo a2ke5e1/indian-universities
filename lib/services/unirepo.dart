@@ -51,7 +51,9 @@ class UniversityLoader {
     if (_cachedData == null) {
       throw Exception('University data not loaded');
     }
-    return _cachedData!.map((e) => e.State ?? "Others").toSet().toList();
+    // sort in alphabetical order
+    return _cachedData!.map((e) => e.State ?? "Others").toSet().toList()
+      ..sort((a, b) => a.compareTo(b));
   }
 
   List<String> getUniversityTypes() {

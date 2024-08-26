@@ -411,86 +411,97 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Filter Universities"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DropdownButton<String>(
-                hint: const Text("Select State"),
-                value: selectedState,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedState = newValue;
-                  });
-                },
-                items: _universityLoader
-                    .getStates()
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Filter Universities"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButton<String>(
+                    hint: const Text("Select State"),
+                    value: selectedState,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedState = newValue;
+                      });
+                    },
+                    items: _universityLoader
+                        .getStates()
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  DropdownButton<String>(
+                    hint: const Text("Select University Type"),
+                    value: selectedUniversityType,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedUniversityType = newValue;
+                      });
+                    },
+                    items: _universityLoader
+                        .getUniversityTypes()
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
-              DropdownButton<String>(
-                hint: const Text("Select University Type"),
-                value: selectedUniversityType,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedUniversityType = newValue;
-                  });
-                },
-                items: _universityLoader
-                    .getUniversityTypes()
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _universityDetails =
-                      _universityLoader.loadUniversityDetails().then((value) {
-                    return _universityLoader.filterUniversities(
-                        value, selectedState, selectedUniversityType);
-                  });
-                });
-                Navigator.pop(context);
-              },
-              child: const Text("Apply"),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  selectedState = null;
-                  selectedUniversityType = null;
-                  _universityDetails =
-                      _universityLoader.loadUniversityDetails().then((value) {
-                    return _universityLoader.getUniversitiesByState(value);
-                  });
-                });
-                Navigator.pop(context);
-              },
-              child: const Text("Clear"),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, {
+                      'selectedState': selectedState,
+                      'selectedUniversityType': selectedUniversityType,
+                    });
+                  },
+                  child: const Text("Apply"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      selectedState = null;
+                      selectedUniversityType = null;
+                    });
+                    Navigator.pop(context, {
+                      'selectedState': selectedState,
+                      'selectedUniversityType': selectedUniversityType,
+                    });
+                  },
+                  child: const Text("Clear"),
+                ),
+              ],
+            );
+          },
         );
       },
-    );
+    ).then((result) {
+      if (result != null) {
+        setState(() {
+          selectedState = result['selectedState'];
+          selectedUniversityType = result['selectedUniversityType'];
+          _universityDetails =
+              _universityLoader.loadUniversityDetails().then((value) {
+            return _universityLoader.filterUniversities(
+                value, selectedState, selectedUniversityType);
+          });
+        });
+      }
+    });
   }
 
   @override
