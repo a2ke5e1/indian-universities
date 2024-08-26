@@ -379,8 +379,8 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
   final UniversityLoader _universityLoader = UniversityLoader();
   late Future<Map<String, List<Details>>> _universityDetails;
   List<Details> _favouriteUniversities = [];
-  String? selectedState;
-  String? selectedUniversityType;
+  List<String> selectedStates = [];
+  List<String> selectedUniversityTypes = [];
 
   @override
   void initState() {
@@ -415,74 +415,83 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
           builder: (context, setState) {
             return AlertDialog(
               title: const Text("Filter Universities"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  DropdownButton<String>(
-                    hint: const Text("Select State"),
-                    value: selectedState,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedState = newValue;
-                      });
-                    },
-                    items: _universityLoader
-                        .getStates()
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                  DropdownButton<String>(
-                    hint: const Text("Select University Type"),
-                    value: selectedUniversityType,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedUniversityType = newValue;
-                      });
-                    },
-                    items: _universityLoader
-                        .getUniversityTypes()
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ],
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ExpansionTile(
+                      title: const Text("Select State"),
+                      children: _universityLoader.getStates().map((state) {
+                        return CheckboxListTile(
+                          title: Text(state),
+                          value: selectedStates.contains(state),
+                          onChanged: (bool? value) {
+                            setState(() {
+                              if (value == true) {
+                                selectedStates.add(state);
+                              } else {
+                                selectedStates.remove(state);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    ExpansionTile(
+                      title: const Text("Select University Type"),
+                      children: _universityLoader.getUniversityTypes().map((type) {
+                        return CheckboxListTile(
+                          title: Text(type),
+                          value: selectedUniversityTypes.contains(type),
+                          onChanged: (bool? value) {
+                            setState(() {
+                              if (value == true) {
+                                selectedUniversityTypes.add(type);
+                              } else {
+                                selectedUniversityTypes.remove(type);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               ),
               actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Cancel"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context, {
-                      'selectedState': selectedState,
-                      'selectedUniversityType': selectedUniversityType,
-                    });
-                  },
-                  child: const Text("Apply"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      selectedState = null;
-                      selectedUniversityType = null;
-                    });
-                    Navigator.pop(context, {
-                      'selectedState': selectedState,
-                      'selectedUniversityType': selectedUniversityType,
-                    });
-                  },
-                  child: const Text("Clear"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedStates = [];
+                          selectedUniversityTypes = [];
+                        });
+                      },
+                      child: const Text("Clear"),
+                    ),
+                    Row(
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, {
+                              'selectedStates': selectedStates,
+                              'selectedUniversityTypes': selectedUniversityTypes,
+                            });
+                          },
+                          child: const Text("Apply"),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             );
@@ -492,13 +501,13 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
     ).then((result) {
       if (result != null) {
         setState(() {
-          selectedState = result['selectedState'];
-          selectedUniversityType = result['selectedUniversityType'];
+          selectedStates = result['selectedStates'];
+          selectedUniversityTypes = result['selectedUniversityTypes'];
           _universityDetails =
               _universityLoader.loadUniversityDetails().then((value) {
-            return _universityLoader.filterUniversities(
-                value, selectedState, selectedUniversityType);
-          });
+                return _universityLoader.filterUniversities(
+                    value, selectedStates, selectedUniversityTypes);
+              });
         });
       }
     });

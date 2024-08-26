@@ -67,11 +67,10 @@ class UniversityLoader {
   }
 
   Map<String, List<Details>> filterUniversities(
-      List<Details> universities, String? state, String? universityType) {
+      List<Details> universities, List<String>? states, List<String>? universityTypes) {
     final filteredUniversities = universities.where((university) {
-      final matchesState = state == null || university.State == state;
-      final matchesType = universityType == null ||
-          university.University_Type == universityType;
+      final matchesState = states == null || states.isEmpty || states.contains(university.State);
+      final matchesType = universityTypes == null || universityTypes.isEmpty || universityTypes.contains(university.University_Type);
       return matchesState && matchesType;
     }).toList();
 
