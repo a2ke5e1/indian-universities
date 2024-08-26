@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
         builder: (ColorScheme? lightColorScheme, ColorScheme? darkColorScheme) {
       return MaterialApp(
         title: 'Uni-App',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: lightColorScheme ?? _lightscheme,
           useMaterial3: true,

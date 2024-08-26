@@ -26,7 +26,9 @@ class UniversityLoader {
       final List<List<dynamic>> csvData =
           const CsvToListConverter().convert(cachedCsvData);
       _cachedData = _convertToDetailsList(cleanData(csvData));
-      return _cachedData!;
+      if (_cachedData!.isNotEmpty && _cachedData!.length > 1300) {
+        return _cachedData!;
+      }
     }
 
     loading = true;
