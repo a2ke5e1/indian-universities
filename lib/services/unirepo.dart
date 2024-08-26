@@ -16,22 +16,15 @@ class UniversityLoader {
     final cachedCsvData = prefs.getString('cached_university_data');
 
     List<List<dynamic>> cleanData(List<List<dynamic>> data) {
-      // Remove empty rows
       data.removeWhere((row) => row[1].toString().isEmpty);
-
-      // Remove the header row
       data.removeAt(0);
-
-      // Sort the data by university name
       data.sort((a, b) => a[1].toString().compareTo(b[1].toString()));
-
       return data;
     }
 
     if (cachedCsvData != null) {
       final List<List<dynamic>> csvData =
           const CsvToListConverter().convert(cachedCsvData);
-
       _cachedData = _convertToDetailsList(cleanData(csvData));
       return _cachedData!;
     }
@@ -44,12 +37,8 @@ class UniversityLoader {
       final csvData = response.body;
       final List<List<dynamic>> data =
           const CsvToListConverter().convert(csvData);
-
       _cachedData = _convertToDetailsList(cleanData(data));
-
-      // Save the data to SharedPreferences
       await prefs.setString('cached_university_data', csvData);
-
       loading = false;
       return _cachedData!;
     } else {
@@ -58,10 +47,38 @@ class UniversityLoader {
     }
   }
 
+  List<String> getStates() {
+    if (_cachedData == null) {
+      throw Exception('University data not loaded');
+    }
+    return _cachedData!.map((e) => e.State ?? "Others").toSet().toList();
+  }
+
+  List<String> getUniversityTypes() {
+    if (_cachedData == null) {
+      throw Exception('University data not loaded');
+    }
+    return _cachedData!
+        .map((e) => e.University_Type ?? "Others")
+        .toSet()
+        .toList();
+  }
+
+  Map<String, List<Details>> filterUniversities(
+      List<Details> universities, String? state, String? universityType) {
+    final filteredUniversities = universities.where((university) {
+      final matchesState = state == null || university.State == state;
+      final matchesType = universityType == null ||
+          university.University_Type == universityType;
+      return matchesState && matchesType;
+    }).toList();
+
+    return getUniversitiesByState(filteredUniversities);
+  }
+
   Map<String, List<Details>> getUniversitiesByState(
       List<Details> universities) {
     final Map<String, List<Details>> universitiesByState = {};
-
     for (final university in universities) {
       if (universitiesByState.containsKey(university.State)) {
         universitiesByState[university.State]!.add(university);
@@ -69,22 +86,6 @@ class UniversityLoader {
         universitiesByState[university.State ?? "Others"] = [university];
       }
     }
-
-    return universitiesByState;
-  }
-
-  Map<String, List<Details>> getUniversitiesByType(
-      List<Details> universities) {
-    final Map<String, List<Details>> universitiesByState = {};
-
-    for (final university in universities) {
-      if (universitiesByState.containsKey(university.University_Type)) {
-        universitiesByState[university.University_Type]!.add(university);
-      } else {
-        universitiesByState[university.University_Type ?? "Others"] = [university];
-      }
-    }
-
     return universitiesByState;
   }
 

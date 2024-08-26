@@ -33,6 +33,8 @@ class _HomeState extends State<Home> {
   bool renderHome = false;
   late SharedPreferences prefs;
   final User? user = FirebaseAuth.instance.currentUser;
+  final GlobalKey<_UniversityListFilterState> _universityListFilterKey =
+      GlobalKey<_UniversityListFilterState>();
 
   @override
   void initState() {
@@ -116,6 +118,12 @@ class _HomeState extends State<Home> {
                         },
                         icon: const Icon(Icons.search))
                     : Container(),
+                IconButton(
+                  onPressed: () {
+                    _universityListFilterKey.currentState?.openFilterDialog();
+                  },
+                  icon: const Icon(Icons.filter_list),
+                ),
                 PopupMenuButton<int>(
                   onSelected: handlePopupMenu,
                   itemBuilder: (context) => [
@@ -139,6 +147,7 @@ class _HomeState extends State<Home> {
             body: <Widget>[
               UniversityListFilter(
                 universityRepo: universityRepo,
+                key: _universityListFilterKey,
               ),
               FavoritesList(universityRepo: universityRepo),
               const AccountInfo(),
@@ -167,7 +176,7 @@ class FavoritesList extends StatelessWidget {
           direction: Axis.vertical,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-             Icon(
+            Icon(
               Icons.bookmark_border,
               size: 100,
               color: Theme.of(context).colorScheme.secondary,
@@ -370,11 +379,12 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
   final UniversityLoader _universityLoader = UniversityLoader();
   late Future<Map<String, List<Details>>> _universityDetails;
   List<Details> _favouriteUniversities = [];
+  String? selectedState;
+  String? selectedUniversityType;
 
   @override
   void initState() {
     super.initState();
-    // get favorite universities
     widget.universityRepo.getFavouriteData().then((value) {
       setState(() {
         _favouriteUniversities = value;
@@ -397,6 +407,92 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
     ));
   }
 
+  void openFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Filter Universities"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DropdownButton<String>(
+                hint: const Text("Select State"),
+                value: selectedState,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedState = newValue;
+                  });
+                },
+                items: _universityLoader
+                    .getStates()
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              DropdownButton<String>(
+                hint: const Text("Select University Type"),
+                value: selectedUniversityType,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedUniversityType = newValue;
+                  });
+                },
+                items: _universityLoader
+                    .getUniversityTypes()
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _universityDetails =
+                      _universityLoader.loadUniversityDetails().then((value) {
+                    return _universityLoader.filterUniversities(
+                        value, selectedState, selectedUniversityType);
+                  });
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Apply"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  selectedState = null;
+                  selectedUniversityType = null;
+                  _universityDetails =
+                      _universityLoader.loadUniversityDetails().then((value) {
+                    return _universityLoader.getUniversitiesByState(value);
+                  });
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Clear"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, List<Details>>>(
@@ -410,7 +506,6 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
           return const Center(child: Text('No university details available'));
         } else {
           final data = snapshot.data!;
-          // sort the dictionary by key
           final sortedKeys = data.keys.toList()..sort();
 
           return ListView.builder(
@@ -432,61 +527,56 @@ class _UniversityListFilterState extends State<UniversityListFilter> {
                           ),
                     ),
                   ),
-                  ...universities
-                      .map((university) => ListTile(
-                            title: Text(
-                                university.University_Name?.toUpperCase() ??
-                                    ''),
-                            trailing: FirebaseAuth
-                                        .instance.currentUser?.isAnonymous ??
-                                    true
-                                ? const SizedBox()
-                                : isFavourite(university.docId)
-                                    ? IconButton(
-                                        onPressed: () {
-                                          widget.universityRepo
-                                              .removeFavourite(university);
-                                          setState(() {
-                                            _favouriteUniversities.removeWhere(
-                                                (element) =>
-                                                    element.University_Name ==
-                                                    university.University_Name);
-                                          });
-                                          _showSnackBar(context,
-                                              "Removed from Bookmarks");
-                                        },
-                                        icon: const Icon(Icons.bookmark))
-                                    : IconButton(
-                                        onPressed: () {
-                                          widget.universityRepo
-                                              .addFavourite(university);
-                                          setState(() {
-                                            _favouriteUniversities
-                                                .add(university);
-                                          });
-                                          _showSnackBar(
-                                              context, "Added to Bookmarks");
-                                        },
-                                        icon:
-                                            const Icon(Icons.bookmark_border)),
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                '/details',
-                                arguments: {
-                                  'University_Id': university.docId,
-                                  'University_Name': university.University_Name,
-                                  'University_Type': university.University_Type,
-                                  'State': university.State,
-                                  'Location': university.Location,
-                                  'District': university.District,
-                                  'Address': university.address,
-                                  'Website': university.website,
-                                },
-                              );
+                  ...universities.map((university) => ListTile(
+                        title: Text(
+                            university.University_Name?.toUpperCase() ?? ''),
+                        trailing: FirebaseAuth
+                                    .instance.currentUser?.isAnonymous ??
+                                true
+                            ? const SizedBox()
+                            : isFavourite(university.docId)
+                                ? IconButton(
+                                    onPressed: () {
+                                      widget.universityRepo
+                                          .removeFavourite(university);
+                                      setState(() {
+                                        _favouriteUniversities.removeWhere(
+                                            (element) =>
+                                                element.University_Name ==
+                                                university.University_Name);
+                                      });
+                                      _showSnackBar(
+                                          context, "Removed from Bookmarks");
+                                    },
+                                    icon: const Icon(Icons.bookmark))
+                                : IconButton(
+                                    onPressed: () {
+                                      widget.universityRepo
+                                          .addFavourite(university);
+                                      setState(() {
+                                        _favouriteUniversities.add(university);
+                                      });
+                                      _showSnackBar(
+                                          context, "Added to Bookmarks");
+                                    },
+                                    icon: const Icon(Icons.bookmark_border)),
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/details',
+                            arguments: {
+                              'University_Id': university.docId,
+                              'University_Name': university.University_Name,
+                              'University_Type': university.University_Type,
+                              'State': university.State,
+                              'Location': university.Location,
+                              'District': university.District,
+                              'Address': university.address,
+                              'Website': university.website,
                             },
-                          ))
-                      .toList()
+                          );
+                        },
+                      ))
                 ],
               );
             },
